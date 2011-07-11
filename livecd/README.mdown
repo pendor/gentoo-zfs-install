@@ -1,0 +1,112 @@
+This tutorial explains how to build a Gentoo install livecd with support for ZFS.  Using such a CD makes the process of building a Gentoo system with ZFS as its root filesystem relatively straight forward.
+
+Requirements
+============
+
+This tutorial assumes you have access to an existing Gentoo Linux system with the usual suite of compilation tools available.  This system need not have any support for ZFS installed.  Though you must have the zfs portage overlay available.  Gentoo's Catalyst livecd builder will be used to generate a livecd nearly identical to the official Gentoo install media with ZFS support integrated.
+
+You'll also need to install Gentoo's Catalyst tool and dosfstools.  Note that all package installs in this doc will use fully versioned portage atoms.  It's likely that later versions will still work, but the actual versions used are shown for clarity.
+
+    emerge -v =dev-util/catalyst-2.0.6.916 =sys-fs/dosfstools-3.0.9
+
+About Catalyst
+==============
+
+Catalyst is Gentoo's release engineering system which is use to build official Gentoo ISO images for release.  Catalyst uses a system of spec files which describe the steps to create various stages of the build process and finally ISO images.  These spec files instruct Catalyst which packages to include, what configuration scripts to run, and allow overriding Portage behavior as needed.
+
+The spec files presented here are taken directly from Gentoo's releng project as of about 01-Jul-2011.  The scripts have been modified as little as possible to get them to work with ZFS, so the end result is very close to official Gentoo install media.  
+
+In addition to the spec files, portage config, and a few shell scripts, Catalyst also needs a bootstrap stage3 tarball and a snapshot of the portage tree to launch the build process.  As the portage tree is ever-changing, the stage3 and snapshot which were successfully used in the creation of this tutorial may be downloaded from github.  It's likely this tutorial can be successfully followed with later stage and/or portage snaps, but it may be desirable to start from a known-good state.
+
+By default, Catalyst uses /var/tmp/catalyst as a working directory during the build process (storedir).  You may need to adjust some paths in the spec files and in these instructions if you modify this path.  If you wish to modify this setting, you should edit /etc/catalyst/catalyst.conf.
+
+You will probably also want to edit `/etc/catalyst/catalystrc` set MAKEOPTS for your CPU.  You should set -j to one more than the number of cores you have available for compilation.  A two-core system would use:
+
+    export MAKEOPTS="-j3"
+
+Downloading the Files
+=====================
+
+You'll need to download the 'livecd' folder from the github repository.  You can either clone the repo or download a tarball using the Downloads button in the upper right corner of github's interface.  No "official" tarballs are prepared at this time.
+
+Place the livecd folder somewhere on your host Gentoo system.  You'll need to customize some of the files before you start building the livecd.  You'll also need a stage3 tarball and a portage snapshot.  You can download both of these from the github site or else download a recent stage3 from Gentoo's mirror system and create your own portage snapshot using Catalyst.
+
+Initial Setup
+=============
+
+Place the bootstrap stage3 tarball in /var/tmp/catalyst/builds.  There's no need to un-tar it.  If you used your own stage3, you'll need to edit specs/stage1.spec to reflect the correct filename.
+
+If you chose to download the portage snapshot, you should place that tarball in /var/tmp/catalyst/snapshots.  Again, there's no need to un-tar it.  If you'd prefer to use a fresh Portage snapshot, Catalyst will generate one for you with the following command:
+
+    catalyst -s <snapshotName>
+If you chose to create a new snapshot, you'll need to edit the `snapshot:` setting in each of the spec files to reflect the name you selected.
+
+ZFS Portage Overlay
+===================
+
+Adding ZFS support to Gentoo requires several ebuilds which are not yet available from the official Portage tree.  A portage overlay is available to provide the necessary packages.  You can obtain this overlay in one of two ways: via layman or directly from Git.
+
+Layman
+------
+
+An overlay site for layman is available at:
+
+    https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml
+
+You can make use of this overlay by installing and configuring layman:
+
+    # Install layman.  At least git support must be included via USE flag.
+    USE="git" emerge -v =app-portage/layman-1.4.1
+    
+    # Add the overlay file to layman's configuration file:
+    cp /etc/layman/layman.cfg /etc/layman/layman-orig.cfg
+    sed '/^\s*overlays\s*:/ a\
+        https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml' \
+        /etc/layman/layman-orig.cfg > /etc/layman/layman.cfg
+
+    # Refresh the Layman overlay list and add zfs to the active list
+    layman -S
+    layman -L
+    layman -a zfs
+    
+Once the layman overlay is installed, the portage overlay is available at `/var/lib/layman/zfs` which is the default path where the included spec files will find it.
+
+Git or Manual
+-------------
+
+If you'd prefer not to use layman, you can download the overlay either by cloning it via git or by downloading a tarball from github.  You'll need to adjust the `portage_overlay:` setting in both the `installcd-stage1.spec` and `installcd-stage2-minimal.spec` files.
+
+Customizing the Spec Files
+--------------------------
+
+The stage files assume that they livecd package is available at `/root/catalyst` so that `/root/catalyst/spec/stage1.spec` is a valid location.  You should search through the spec files for `/root/catalyst` and update any paths as needed.  Several critical scripts and portage configurations are references from the installcd-stage*.spec files, and the livecd build process will fail if the paths are not updated.
+
+Skim through each of the stage files to see if any additional customization is required.  Other than changing version strings or snapshot/stage paths, the stage1-3 files are used pretty much as-is.  The installcd-stage*.spec files are where you can customize packages which will be included on the livecd.  Please see Gentoo's Catalyst documentation for more advanced customizations that are available.  
+
+Kernel Configuration
+--------------------
+
+It's recommended that you use the included installcd-2.6.38.config file and stick with 2.6.38 as the kernel for the livecd.  If you wish to customize this file, you must ensure that:
+
+    CONFIG_KALLSYMS=y
+    CONFIG_PREEMPT_NONE=y
+
+ZFS will fail if these settings are incorrect.
+
+Building the Stages
+-------------------
+
+Once everything is configured, you can start the stage build process.  This will take a while...  You need to build a stage 1, 2, and 3 Linux system before finally building a stage1 and stage2 livecd.  While it's technically possible to build installcd-stage1 directly from a pre-existing stage3, it's not recommended.  If it breaks, you get to keep the pieces...
+
+    cd /root/catalyst # Where ever you downloaded the files.
+    catalyst -v -f spec/stage1.spec
+    
+    catalyst -v -f spec/stage2.spec
+    
+    catalyst -v -f spec/stage3.spec
+    
+    catalyst -v -f spec/installcd-stage1.spec
+    
+    catalyst -v -f spec/installcd-stage2-minimal.spec
+    
+You should check the output from each stage to make sure there are no errors.  The end result of the installcd-stage2 build will be an ISO file at `/root/catalyst/install-amd64-minimal-10.0.zfs.iso`.  You can use these CD image to install Gentoo.

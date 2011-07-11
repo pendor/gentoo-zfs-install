@@ -1,0 +1,10 @@
+Using ZFS with Gentoo
+=====================
+
+This project contains tools, spec files, and documentation to aid in using and installing Gentoo with the native ZFS filesystem driver from https://github.com/zfsonlinux.
+
+Available Resources
+-------------------
+
+* Building a Gentoo installcd with ZFS support (livecd)
+* Installing and booting Gentoo from ZFS root (install)
