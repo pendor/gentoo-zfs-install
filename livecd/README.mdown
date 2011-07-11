@@ -110,3 +110,14 @@ Once everything is configured, you can start the stage build process.  This will
     catalyst -v -f spec/installcd-stage2-minimal.spec
     
 You should check the output from each stage to make sure there are no errors.  The end result of the installcd-stage2 build will be an ISO file at `/root/catalyst/install-amd64-minimal-10.0.zfs.iso`.  You can use these CD image to install Gentoo.
+
+Licensing Note
+==============
+
+There's much FUD flying around about licensing of ZFS and its compatibility with GPL.  The CDDL license under which the ZFS code is distributed does conflict with GPL on several terms, and this conflict makes it impossible to ship code which links both GPL and CDDL code (thus rendering it a derivative work of both code bases).
+
+While I am not a lawyer, it's my good faith belief based on my understanding of the term "link" and of comments made by Linus Torvalds mirrored at  http://linuxmafia.com/faq/Kernel/proprietary-kernel-modules.html that simply creating kernel modules for Linux is not sufficient for those modules to be considered derivative works of the Linux kernel.  
+
+The specifically mentioned case of the Andrew File System driver is particularly germane in that just as with ZFS, and existing code base exists which clearly has a life independent of the Linux kernel.  As such, the modules themselves are not derivative works of the kernel and may be distributed in compiled form purely under the terms of the CDDL.  It is with this understanding that an ISO of the above described process is made available.
+
+
