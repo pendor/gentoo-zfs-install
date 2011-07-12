@@ -12,39 +12,54 @@ You'll also need to install Gentoo's Catalyst tool and dosfstools.  Note that al
 About Catalyst
 ==============
 
-Catalyst is Gentoo's release engineering system which is use to build official Gentoo ISO images for release.  Catalyst uses a system of spec files which describe the steps to create various stages of the build process and finally ISO images.  These spec files instruct Catalyst which packages to include, what configuration scripts to run, and allow overriding Portage behavior as needed.
+Catalyst is Gentoo's release engineering system which is used to build official Gentoo ISO images for release.  Catalyst uses a system of spec files which describe the steps to create various stages of the build process and finally ISO images.  These spec files instruct Catalyst which packages to include, what configuration scripts to run, and allow overriding Portage behavior as needed.
 
 The spec files presented here are taken directly from Gentoo's releng project as of about 01-Jul-2011.  The scripts have been modified as little as possible to get them to work with ZFS, so the end result is very close to official Gentoo install media.  
 
-In addition to the spec files, portage config, and a few shell scripts, Catalyst also needs a bootstrap stage3 tarball and a snapshot of the portage tree to launch the build process.  As the portage tree is ever-changing, the stage3 and snapshot which were successfully used in the creation of this tutorial may be downloaded from github.  It's likely this tutorial can be successfully followed with later stage and/or portage snaps, but it may be desirable to start from a known-good state.
-
-By default, Catalyst uses /var/tmp/catalyst as a working directory during the build process (storedir).  You may need to adjust some paths in the spec files and in these instructions if you modify this path.  If you wish to modify this setting, you should edit /etc/catalyst/catalyst.conf.
-
-You will probably also want to edit `/etc/catalyst/catalystrc` set MAKEOPTS for your CPU.  You should set -j to one more than the number of cores you have available for compilation.  A two-core system would use:
-
-    export MAKEOPTS="-j3"
+In addition to the spec files, portage config, and a few shell scripts, Catalyst also needs a bootstrap stage3 tarball and a snapshot of the portage tree to launch the build process.  As the portage tree is ever-changing, the stage3 and snapshot which were successfully used in the creation of this tutorial may be downloaded as tarballs.  It's likely this tutorial can be successfully followed with more recent stage and/or portage snaps, but it may be desirable to start from a known-good state.
 
 Downloading the Files
 =====================
 
 You'll need to download the 'livecd' folder from the github repository.  You can either clone the repo or download a tarball using the Downloads button in the upper right corner of github's interface.  No "official" tarballs are prepared at this time.
 
-Place the livecd folder somewhere on your host Gentoo system.  You'll need to customize some of the files before you start building the livecd.  You'll also need a stage3 tarball and a portage snapshot.  You can download both of these from the github site or else download a recent stage3 from Gentoo's mirror system and create your own portage snapshot using Catalyst.
+Place the livecd folder somewhere on your host Gentoo system.  You'll need to customize some of the files before you start building the livecd.  You'll also need a stage3 tarball and a portage snapshot.  You can download both of these from the URL's below or else download a recent stage3 from Gentoo's mirror system and create your own portage snapshot using Catalyst.
+
+**Stage 3 Tarball**
+
+* http://dl.dropbox.com/u/34890805/stage3-amd64-20110520.tar.bz2
+* https://docs.google.com/leaf?id=0BySUUtAmD3OxZmIxY2ZlODUtYzU5ZS00NTJlLWExNDUtOGNkYTQ4YzIzNGU0&hl=en_US
+* MD5(stage3-amd64-20110520.tar.bz2)= f96b8bfbbaacdc0ad1ed3fc7f751cba5  
+* SHA1(stage3-amd64-20110520.tar.bz2)= 55b4ede3c8a4252e0e314fe5fec6fdd7b9b40774
+
+**Portage Snapshot**
+
+* http://dl.dropbox.com/u/34890805/portage-20110704.tar.bz2
+* https://docs.google.com/leaf?id=0BySUUtAmD3OxMjY0MGNlZDEtZmNhMC00YzVkLTkyZTAtM2MxOWQ0ZjVkMDdm&hl=en_US
+* MD5(portage-20110704.tar.bz2)= 151e2df3496dfe0af79617ee1635118f
+* SHA1(portage-20110704.tar.bz2)= 724369025e92036e4610d2bc40b599d0c39e728b
 
 Initial Setup
 =============
 
-Place the bootstrap stage3 tarball in /var/tmp/catalyst/builds.  There's no need to un-tar it.  If you used your own stage3, you'll need to edit specs/stage1.spec to reflect the correct filename.
+By default, Catalyst uses `/var/tmp/catalyst` as a working directory during the build process (storedir).  You may need to adjust some paths in the spec files and in these instructions if you modify this path.  If you wish to modify this setting, you should edit `/etc/catalyst/catalyst.conf`.
 
-If you chose to download the portage snapshot, you should place that tarball in /var/tmp/catalyst/snapshots.  Again, there's no need to un-tar it.  If you'd prefer to use a fresh Portage snapshot, Catalyst will generate one for you with the following command:
+You will probably also want to edit `/etc/catalyst/catalystrc` set MAKEOPTS for your CPU.  You should set -j to one more than the number of cores you have available for compilation.  A two-core system would use:
+
+    export MAKEOPTS="-j3"
+
+Place the bootstrap stage3 tarball in `/var/tmp/catalyst/builds`.  There's no need to un-tar it.  If you used your own stage3, you'll need to edit `specs/stage1.spec` to reflect the correct filename.
+
+If you chose to download the portage snapshot, you should place that tarball in `/var/tmp/catalyst/snapshots`.  Again, there's no need to un-tar it.  If you'd prefer to use a fresh Portage snapshot, Catalyst will generate one for you with the following command:
 
     catalyst -s <snapshotName>
+    
 If you chose to create a new snapshot, you'll need to edit the `snapshot:` setting in each of the spec files to reflect the name you selected.
 
 ZFS Portage Overlay
 ===================
 
-Adding ZFS support to Gentoo requires several ebuilds which are not yet available from the official Portage tree.  A portage overlay is available to provide the necessary packages.  You can obtain this overlay in one of two ways: via layman or directly from Git.
+Adding ZFS support to Gentoo requires several ebuilds which are not yet available from the official Portage tree.  A portage overlay is available to provide the necessary packages.  You can obtain this overlay in one of two ways: via layman or directly from git/github.
 
 Layman
 ------
@@ -71,17 +86,19 @@ You can make use of this overlay by installing and configuring layman:
     
 Once the layman overlay is installed, the portage overlay is available at `/var/lib/layman/zfs` which is the default path where the included spec files will find it.
 
-Git or Manual
+Git or Github
 -------------
 
-If you'd prefer not to use layman, you can download the overlay either by cloning it via git or by downloading a tarball from github.  You'll need to adjust the `portage_overlay:` setting in both the `installcd-stage1.spec` and `installcd-stage2-minimal.spec` files.
+If you'd prefer not to use layman, you can download the overlay either by cloning it via git or by downloading a tarball from github.  You'll need to adjust the `portage_overlay:` setting in both the `installcd-stage1.spec` and `installcd-stage2-minimal.spec` files to point to the directory where you've cloned or untarred the overlay.
 
 Customizing the Spec Files
 --------------------------
 
-The stage files assume that they livecd package is available at `/root/catalyst` so that `/root/catalyst/spec/stage1.spec` is a valid location.  You should search through the spec files for `/root/catalyst` and update any paths as needed.  Several critical scripts and portage configurations are references from the installcd-stage*.spec files, and the livecd build process will fail if the paths are not updated.
+The stage files assume that the livecd package is installed at `/root/catalyst` so that `/root/catalyst/spec/stage1.spec` is a valid location.  You should search through the spec files for `/root/catalyst` and update any paths as needed.  Several critical scripts and portage configurations are referenced from the installcd-stage*.spec files, and the livecd build process will fail if the paths are not updated.
 
 Skim through each of the stage files to see if any additional customization is required.  Other than changing version strings or snapshot/stage paths, the stage1-3 files are used pretty much as-is.  The installcd-stage*.spec files are where you can customize packages which will be included on the livecd.  Please see Gentoo's Catalyst documentation for more advanced customizations that are available.  
+
+Please note that customization may lead to failure of the livecd build process, so unless you have a strong need to have a particular package _on the livecd_ as opposed to in the final system, you should leave the spec files as-is.
 
 Kernel Configuration
 --------------------
@@ -91,14 +108,14 @@ It's recommended that you use the included installcd-2.6.38.config file and stic
     CONFIG_KALLSYMS=y
     CONFIG_PREEMPT_NONE=y
 
-ZFS will fail if these settings are incorrect.
+ZFS will fail if these settings are incorrect.  Please also note that ZFS may have compatibility issues with newly released kernels, so double check that ZFS is compatible with your desired kernel before changing the version.
 
 Building the Stages
 -------------------
 
-Once everything is configured, you can start the stage build process.  This will take a while...  You need to build a stage 1, 2, and 3 Linux system before finally building a stage1 and stage2 livecd.  While it's technically possible to build installcd-stage1 directly from a pre-existing stage3, it's not recommended.  If it breaks, you get to keep the pieces...
+Once everything is configured, you can start the stage build process.  This will take a while...  You need to build a stage 1, 2, and 3 Gentoo system (in a chroot) before finally building a stage1 and stage2 livecd.  While it's technically possible to build installcd-stage1 directly from a pre-existing stage3, it's not recommended.  If it breaks, you get to keep the pieces...
 
-    cd /root/catalyst # Where ever you downloaded the files.
+    cd /root/catalyst # Where you downloaded the files.
     catalyst -v -f spec/stage1.spec
     
     catalyst -v -f spec/stage2.spec
@@ -118,6 +135,9 @@ There's much FUD flying around about licensing of ZFS and its compatibility with
 
 While I am not a lawyer, it's my good faith belief based on my understanding of the term "link" and of comments made by Linus Torvalds mirrored at  http://linuxmafia.com/faq/Kernel/proprietary-kernel-modules.html that simply creating kernel modules for Linux is not sufficient for those modules to be considered derivative works of the Linux kernel.  
 
-The specifically mentioned case of the Andrew File System driver is particularly germane in that just as with ZFS, and existing code base exists which clearly has a life independent of the Linux kernel.  As such, the modules themselves are not derivative works of the kernel and may be distributed in compiled form purely under the terms of the CDDL.  It is with this understanding that an ISO of the above described process is made available.
+The specifically mentioned case of the Andrew File System driver is particularly germane in that just as with ZFS, AFS represents a pre-existing code base that clearly has a life independent of the Linux kernel.  As such, the modules themselves are not derivative works of the kernel and may be distributed in compiled form purely under the terms of the CDDL.  It is with this understanding that an ISO of the above described process is made available:
 
-
+* http://dl.dropbox.com/u/34890805/install-amd64-minimal-10.0.zfs.iso
+* https://docs.google.com/leaf?id=0BySUUtAmD3OxOWU2MTliZjEtNmVmZS00NmI3LWE5ZDEtNTFkNzExYTM3MjEx&hl=en_US
+* MD5(install-amd64-minimal-10.0.zfs.iso)= b1ac63d9d86d37482dd7bfe0062509f2
+* SHA1(install-amd64-minimal-10.0.zfs.iso)= 373041a565534ee7865c06b715881f7c3b19b016

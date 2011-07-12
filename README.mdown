@@ -6,5 +6,5 @@ This project contains tools, spec files, and documentation to aid in using and i
 Available Resources
 -------------------
 
-* Building a Gentoo installcd with ZFS support (livecd)
-* Installing and booting Gentoo from ZFS root (install)
+* Building a Gentoo installcd with ZFS support: [livecd](tree/master/livecd "LiveCD builder"))
+* Installing and booting Gentoo from ZFS root: [install](tree/master/install "Install script")
