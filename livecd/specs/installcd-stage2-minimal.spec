@@ -18,17 +18,13 @@ livecd/type: gentoo-release-minimal
 livecd/volid: Gentoo ZFS amd64 10
 livecd/fsscript: /root/catalyst/fsscript.sh
 
-livecd/root_overlay: /root/catalyst/root_overlay
+#livecd/root_overlay: /root/catalyst/root_overlay
 livecd/rcadd:
 	hald|default
 	dbus|default
 	wicd|default
 	avahi-daemon|default
 	fixinittab|default
-#	pwgen|default
-#	autoconfig|default
-# livecd/rcdel:
-#	unmute|default
 
 boot/kernel: gentoo
 
