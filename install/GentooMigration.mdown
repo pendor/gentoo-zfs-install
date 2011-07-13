@@ -4,7 +4,7 @@ Bootable Gentoo on ZFS Root
 This tutorial describes the process for migrating an existing Gentoo system to run on a root ZFS filesystem using the native ZFS module available from https://github.com/zfsonlinux/zfs.
 
 This tutorial will give you a bootable ZFS root filesystem, albeit using GRUB on an MD-mirrored ext2 boot partition.  If you are installing a system from scratch, you may
-wish to follow [Installing a fresh Gentoo on ZFS System](GentooInstall.mdown "Instructions for installing a fresh ZFS Gentoo system") instead.
+wish to follow [Installing a fresh Gentoo on ZFS System](https://github.com/pendor/gentoo-zfs-install/blob/master/install/GentooInstall.mdown "Instructions for installing a fresh ZFS Gentoo system") instead.
 
 Assumptions
 -----------

@@ -3,5 +3,5 @@ Gentoo Root on ZFS
 
 Instructions are available for running Gentoo on a root ZFS filesystem.  Two approaches are given, depending on your current status:
 
-* [Migrate an existing system to ZFS root](GentooMigration.mdown "Instructions for migrating an existing Gentoo system to ZFS")
-* [Install a fresh system on ZFS using a ZFS livecd](GentooInstall.mdown "Instructions for installing a fresh Gentoo on ZFS")
+* [Migrate an existing system to ZFS root](https://github.com/pendor/gentoo-zfs-install/blob/master/install/GentooMigration.mdown "Instructions for migrating an existing Gentoo system to ZFS")
+* [Install a fresh system on ZFS using a ZFS livecd](https://github.com/pendor/gentoo-zfs-install/blob/master/install/GentooInstall.mdown "Instructions for installing a fresh Gentoo on ZFS")
