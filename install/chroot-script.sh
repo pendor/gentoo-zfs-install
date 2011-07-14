@@ -20,8 +20,7 @@ sed '/^\s*overlays\s*:/ a\
     /etc/layman/layman-orig.cfg > /etc/layman/layman.cfg
 
 # Refresh the Layman overlay list and add zfs to the active list
-layman -S
-layman -L
+layman -f
 layman -a zfs
 
 # Once we have an overlay active, it's safe to add layman into make.conf
@@ -43,9 +42,9 @@ USE="-zfs" emerge -v =sys-kernel/gentoo-sources-${KVP} =sys-kernel/genkernel-999
 genkernel --menuconfig all
 
 # Unmask latest versions of spl & zfs, then build them.
-echo "=sys-fs/zfs-9999 **" > /etc/portage/package.keywords/zfs
-echo "=sys-devel/spl-9999 **" >> /etc/portage/package.keywords/zfs
-emerge -v =sys-devel/spl-9999 =sys-fs/zfs-9999 =sys-kernel/genkernel-9999
+echo "sys-fs/zfs **" > /etc/portage/package.keywords/zfs
+echo "sys-devel/spl **" >> /etc/portage/package.keywords/zfs
+emerge -v =sys-devel/spl-0.6.0_rc5 =sys-fs/zfs-0.6.0_rc5 =sys-kernel/genkernel-9999
 
 ## FIXME: Genkernel config file add zfs
 # edit /etc/genkernel.conf++zfs, build again
@@ -80,5 +79,8 @@ echo "The ZFS portion of things is done, and this should give a bootable system.
 echo "You can emerge any additional packages and configure the system as you like"
 echo "now.  When you're done, exit this shell, and we'll escape the chroot and"
 echo "get ready to reboot."
+echo " "
+echo "DON'T FORGET TO SET YOUR ROOT PASSWORD. "
+echo " "
 
 exec /bin/bash

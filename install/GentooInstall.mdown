@@ -1,0 +1,299 @@
+This tutorial explains how to install a new Gentoo system directly on a ZFS root filesystem.  If you have an existing Gentoo system that you'd like to move to ZFS without re-installing, you may wish to follow [Migrating Bootable Gentoo on ZFS Root](https://github.com/pendor/gentoo-zfs-install/blob/master/install/GentooMigration.mdown "Instructions for migrating to Gentoo on ZFS root") instead.
+
+When finished you will have a booatable ZFS root filesystem, albeit using GRUB on an MD-mirrored ext2 boot partition.
+
+Please note that this tutorial is being written backwards from the shell scripts (build.sh & chroot-script.sh) also in this directory.  Those scripts are able to build a complete gentoo system on ZFS, given a rather large number of assumptions.  This document will attempt to explain what those scripts do, but when in doubt, the scripts may provide more specific example syntax and more technical explanations of certain steps.
+
+Status of this Document
+=======================
+
+As of 13-Jul-2011, this document should be considered "beta" status.  While best efforts have been made to ensure accuracy of the content, it has not yet been tested on a wide variety of system configurations.  Any feedback, error corrections, typos, etc. would be greatly appreciated.  Bug reports can be sent to pendorbound /a.t/ g mail.
+
+Assumptions
+===========
+
+Before starting, you should verify the following are true:
+
+* You have a Gentoo installcd with ZFS support integrated (see elsewhere on this Github site).
+* You've run at least one "normal" Gentoo install following the handbook.
+* You know your way around Portage, are comfortable using overlays, repartitioning disks, and the like.
+* You're comfortable running bleeding edge versions of software, in some cases where no "official" release is yet available.
+
+Recommendations
+===============
+
+The steps in this tutorial are as accurate as possible, but this being bleeding edge software, things will inevitably go wrong. Before trying this on a "real" system, it's recommended that you:
+
+* Try at least one "dry-run" of these instructions. Using VMWare, VirtualBox, or the like makes for an easy test bed and much easier recovery when things go wrong. (Though see the note about memory for VM systems below.)
+* Don't do this to production hardware! The ZFSonLinux kernel modules are still evolving software. While they are reasonably stable and in use by many people for real-world work loads, using this for a mission critical system isn't the sanest of things to do.
+
+A Note About Memory
+-------------------
+
+Especially if trying this tutorial on a limited testing or VM system, you may need to adjust a ZFS Evil Tuning parameter to control the amount of system memory used for the ZFS ARC cache.  Default tuning for ZFS assumes that you have a Large System With Lots of RAM.  If you're installing a test system in a VM, this may not be the case.  If you attempt to use stock tuning parameters on a system with less than about 2GB of RAM, ZFS will probably lock up the system under even a moderate amount of I/O as the ARC will consume all available memory.
+
+In order to limit the ARC size, you would load the ZFS module like:
+
+    $ modprobe zfs zfs_arc_max=0x20000000
+    # 128MB: 0x8000000
+    # 512MB: 0x20000000
+
+The parameter is the number of bytes (in hex) which should be dedicated to the ARC, at most.  You do want to make this value as large as your system RAM can afford since it serves as your disk cache.  For a 512-768MB system, 128MB will leave the system useable, though quite slow.  For a 1.5GB system, 512MB gives reasonable performance while still leaving RAM available.
+
+**Making Settings Permanent**
+
+If you do need to set ZFS tunables such as zfs\_arc\_max, you should add the settings in `/etc/modprobe.d/zfs.conf` like:
+
+    options zfs zfs_arc_max=0x20000000
+
+The complete list of tunable parameters can be found by running `modinfo zfs`.  Any changes to these settings will require rebuilding your initramfs and rebooting.
+
+Booting the LiveCD
+==================
+
+Starting out is easy enough.  Just boot the installcd.  Once you get the initial prompt, you'll need to start and configure the network adapter (`/etc/init.d/net.eth0 start`), and possibly start the SSH daemon & set the root password.
+
+Now you can load the ZFS modules:
+
+    # Include the zfs_arc_max or other parameters if needed.
+    $ modprobe zfs zfs_arc_max=....
+
+Check the output of the `dmesg` command if you have any problems.
+
+Partitioning
+------------
+
+You should create at least two partitions on your drives.  The first should be a small (say 64MB) partition which will ultimately be mirrored for the /boot partition.  The second should take up the rest of the disk and will be used for ZFS.  You may also elect to create a swap partition in between /boot and ZFS if necessary.  
+
+Partitions may be either MBR or GPT based.  Instructions for using your favorite partitioning tool are left as an exercise for the reader since if you don't know how to use fdisk, you probably shouldn't be reformatting your system...
+
+Creating the zpool
+==================
+
+With drives partitioned, you can create the zpool to hold your root.  Depending on the drives you have available, you may with to create a mirror or a RAID-Z configuration.  Please see standard ZFS documentation and the zpool(8) man page for specifics about vdev options.
+
+    # To create a two-device mirror on two SCSI drives with
+    # a boot (sdX1) and swap (sdX2) partition.
+    $ zpool create rpool sda3 sdb3
+    
+    # To create a four-device raid-z:
+    $ zpool create rpool raidz sda3 sdb3 sdc3 sdd3
+
+The zpool will initially be mounted at /rpool, but we need to move it to /mnt/gentoo to work on it.  We also want to create a separate dataset for the actual root partition (see the GentooMigration) document for reasoning behind this.
+
+    # umount the rpool, change its mountpoint, and make it unmountable
+    $ zfs umount rpool
+    $ zfs set mountpoint=/mnt/gentoo rpool
+    $ zfs set canmount=off rpool
+    
+    # Create the root dataset & set legacy 
+    # mount point since initramfs will mount it manually
+    $ zfs create rpool/ROOT
+    $ zfs create mountpoint=legacy rpool/Root
+    
+If you're using a mirror or single device, you can set the bootfs attribute on the pool so the initramfs can find the root filesystem automatically.  This won't work for RAID-Z, in which case you'll still need the root=... parameter to GRUB.
+
+    $ zpool set bootfs=rpool/ROOT rpool
+     
+Now mount the root filesystem in the usual spot:
+
+    $ mount -t zfs rpool/ROOT /mnt/gentoo
+
+In addition to the root dataset, we'll create several other datasets to help keep things organized.  See the GentooMigration document for reasoning behind this.  Note that /bin, /sbin, /etc, /dev, /sys, and /proc must all be in the root dataset, not part of sub-datasets.
+
+    $ zfs create rpool/home
+    $ zfs create rpool/usr
+    $ zfs create rpool/usr/local
+    $ zfs create rpool/usr/portage
+    $ zfs create rpool/usr/src
+    $ zfs create rpool/var
+    $ zfs create rpool/var/log
+
+ZFS will mount each dataset as it's created, so you should now have your filesystem ready for install.
+
+Setting up /boot mirror
+-----------------------
+
+Since GRUB is not quite yet ready to boot directly off ZFS, we'll use a plain-old MD mirror for the /boot partition.
+
+    # Adjust raid device as necessary if you have 
+    # existing MD's to preserve.
+    $ mdadm --create /dev/md0 --metadata=0.90 --level 1 --raid-devices=2 /dev/sda1 /dev/sdb1
+
+    ## For four-devices, add all four (or more) above.  You
+    ## want all of your drives to have a mirror of /boot.
+    
+    $ mke2fs /dev/md0
+    $ mkdir /mnt/gentoo/boot
+    $ mount /dev/md0 /mnt/gentoo/boot
+
+Create Swap (Optional)
+----------------------
+
+If you created a swap partition, you should also set that up.  It's your choice whether to use a RAID-1 or RAID-0 setup for swap.  RAID-0 is faster and gives more total space but means your system will probably crash if you lose a drive.  RAID-1 is safer and is shown below:
+
+    $ mdadm --create /dev/md1 --metadata=0.90 --level 1 --raid-devices=2 /dev/sda1 /dev/sdb2
+    $ mkswap /dev/md1
+    $ swapon /dev/md1
+
+**Copy mdadm config**
+
+With the various MDADM mirrors setup, you'll want to write out the config file to the new system:
+
+    $ mkdir -p /mnt/gentoo/etc
+    $ mdadm --detail --scan >> /mnt/gentoo/etc/mdadm.conf
+
+**Copy zpool.cache**
+
+Now is also a good time to copy over the zpool cache so your initramfs will have access to it.
+
+    $ mkdir /mnt/gentoo/etc/zfs
+    $ cp /etc/zfs/zpool.cache /mnt/gentoo/etc/zfs/zpool.cache
+
+Installing Gentoo
+=================
+
+At this point, you should be ready to proceed with the normal steps in the Gentoo handbook.  Un-tar your stage file & portage snapshot, edit make.conf, mount /dev & /proc, chroot, emerge the packages that you need, etc.  When you get to the point of configuring your kernel and your bootloader, you'll want to return here for further steps.
+
+Necessary Packages
+------------------
+
+While you're emerging, please be sure to include at least the following required packages:
+
+* `app-portage/layman`
+* `dev-vcs/git`
+* `sys-fs/mdadm`
+* `sys-boot/grub`
+* `sys-kernel/gentoo-sources-2.6.38-r6`
+
+Configuring the Kernel
+----------------------
+
+ZFS can be somewhat particular about the version of kernel it uses.  As the Linux kernel has no stable interfaces to speak of, anything that intends to operation with it is working against a moving target.  At the time of this writing, ZFS is known to work with gentoo-sources-2.6.38-r6.  Other kernel versions and patchsets may or may not work.  ZFSonLinux's developers of course strive for compatibility with the latest kernels, but sometimes there's a slight delay as new versions are released.
+
+When you configure your kernel, you must set the following options:
+
+    CONFIG_KALLSYMS=y
+    CONFIG_PREEMPT_NONE=y
+
+Note that for this _first_ compile run, you should use the stock version of genkernel that's available in the main Portage tree.  There's a chicken/egg problem currently with kernel/zfs/genkernel where ZFS needs the kernel to be built once before ZFS itself can build, and genkernel w/ ZFS support can't be installed until ZFS is present.  We'll run one kernel compile with an initramfs for now, then come back and do the initramfs in a bit.
+
+Installing ZFS et al.
+=====================
+
+Most of the ZFS-related packages have not yet entered the main Portage tree.  As such, an overlay must be used to obtain the ebuilds.  A layman overlay is provided.
+
+Setup Layman
+------------
+
+Hopefully you installed Layman in a previous emerge.  Now you'll need to add the ZFS overlay and add layman to your make.conf.
+    
+    # The following bit of sed should insert the overlay's URL in your
+    # existing layman.cfg.
+    $ cp /etc/layman/layman.cfg /etc/layman/layman-orig.cfg
+    $ sed '/^\s*overlays\s*:/ a\
+    https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml' \
+    /etc/layman/layman-orig.cfg > /etc/layman/layman.cfg
+
+    # Now fetch the updated layman overlay list and enable the zfs overlay
+    $ layman -f
+    $ layman -a zfs
+
+    # Finally add layman to make.conf
+    $ echo "source /var/lib/layman/make.conf" >> /etc/make.conf
+
+Note that in the future, you can obtain updates to the overlay by running `layman -S`.  This is the equivalent of running `emerge --sync`.
+
+Installing Packages
+-------------------
+
+Once you have a kernel built, SPL, ZFS, and genkernel can be installed.  All three packages will require some Portage keyword modifications to build:
+
+    $ FILE=/etc/portage/package.keywords ; [ -d $FILE ] && FILE=$FILE/zfs ; cat >> $FILE <<EOF
+    sys-devel/spl **
+    sys-fs/zfs **
+    =sys-kernel/genkernel-9999 **
+    =sys-kernel/dracut-010-r3 ~amd64
+    EOF
+
+Enable zfs in Dracut.  You might also want to add gensplash here, but that will require a number of graphical libraries be installed as well.
+
+    $ echo 'DRACUT_MODULES="zfs"' >> /etc/make.conf
+
+With the necessary keywords in place, you can emerge:
+
+    $ emerge -v =sys-devel/spl-0.6.0_rc5 =sys-fs/zfs-0.6.0_rc5 =sys-kernel/dracut-010-r3 =sys-kernel/genkernel-9999
+
+**Check for /etc/hostid**
+
+Once the emerge is completed, you should check to ensure that /etc/hostid was created.  If not, you can run `hostid > /etc/hostid`.  This file is used by the SPL module to provide a stable identifier for the current system and to ensure that a pool is never imported by more than one system at a time (IE for disks on iSCSI or similar shared fabric).
+
+**Adding Services**
+
+You'll need to add zfs, udev, and mdadm to your boot configuration:
+
+    $ rc-update add zfs boot
+    $ rc-update add udev boot
+    $ rc-update add mdadm default
+
+Creating the initramfs
+----------------------
+
+With all the bits installed, now we can run the new genkernel to build an initramfs with ZFS support integrated.  First, you need to edit `/etc/genkernel.conf` and set `ZFS="yes"`.  Note that if your `genkernel.conf` doesn't have a ZFS=... setting, you may need to run `etc-update` or `dispatch-conf` to merge in a new version from the emerge steps run above.  If you still don't have the setting, you should double check that you have the correct -9999 version of genkernel installed and that the portage overlay took effect to pull the modified dracut branch of genkernel.
+
+In order to create the initramfs, run:
+
+    $ genkernel --no-clean --no-mrproper --loglevel=5 initramfs
+
+Loglevel=5 ensures that all output from Dracut is displayed.  You should check the output to make sure the zfs module ran and that zfs, zpool, `/etc/hostid`, `/etc/zfs/zpool.cache` are all included in the initramfs.  Assuming everything worked, you should have a new initramfs in your /boot partition.
+
+Setup /etc/fstab
+----------------
+
+Edit your `/etc/fstab` file to set up your boot, swap, and root partitions.  You'll want at least the following:
+
+    /dev/md0                /boot           ext2            noauto,noatime  1 2
+    /dev/md1                none            swap            sw              0 0
+    rpool/ROOT              /               zfs             noatime         0 0
+
+Configuring GRUB
+----------------
+
+Configuring GRUB is relatively straight forward since we're not yet attempting to use ZFS boot partitions.  You'll probably need to run manual `grub` rather than `grub-install` because boot is on an MD.
+
+**Install Bootloader**
+
+    # Adjust hd's as appropriate.  hd1 should come out as sdb.
+    $ grub --batch <<EOG
+      root (hd1,0)
+      setup (hd1)
+      quit
+    EOG
+
+Repeat the above for each of the devices in your pool so that you can boot from any of the drives in the event of a failure.
+
+**Edit grub.conf**
+
+Edit your `/boot/grub/grub.conf` for ZFS.  GRUB entries for ZFS are usually rather sparse:
+
+    title Gentoo Linux ZFS
+    root (hd1,0) 
+    kernel /boot/kernel-genkernel-x86_64-${KV} root=zfs:rpool/ROOT 
+    initrd /boot/initramfs-genkernel-x86_64-${KV}
+    
+Adjust ${KV} accordingly.  You only need the root=... line if your ZFS is a RAID-Z.  RAID-1 will use the bootfs attribute instead.  If you need any additional kernel parameters, add them in.
+
+Finish Installing
+-----------------
+
+If you stopped in the middle of the Gentoo handbook, you should continue the rest of the way through.  Install your cron, logger, etc.  When you're ready to reboot, you need to unmount and export the ZFS pool:
+
+    $ exit # Leave the chroot
+    $ cd
+    $ umount /mnt/gentoo/boot
+    $ zfs umount -a
+    $ zfs set mountpoint=/ rpool
+    $ umount -l /mnt/gentoo/dev{/shm,/pts,}
+    $ umount -l /mnt/gentoo{/boot,/proc,}
+    $ zpool export rpool
+    

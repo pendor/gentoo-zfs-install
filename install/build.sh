@@ -1,5 +1,39 @@
 #!/bin/bash
 
+# Copy this script to the gentoo livecd environment.  You must
+# have an HTTP server setup which provides access to the stage3, portage snapshot, kernel-config, and chroot-script.sh.
+#
+# Call this script with the base URL of this server as the only
+# parameter.  IE:
+#   ./build.sh http://192.168.42.42/~user/zfs
+#
+#
+# Layout of this script:
+#
+# This script loads the zfs driver, partitions disks, formats the
+# /boot and swap partitions, and creates the zpool.  It downloads
+# the initial stage files & portage snapshots and untars them
+# into what will be the chroot environment.  Finally it copies
+# chroot-script.sh into the chroot, chroot's, and executes 
+# that script.
+#
+# chroot-script.sh does most of the gentoo install work of emerging
+# packages, compiling the kernel etc.  Once most of the setup work
+# is done, chroot-script.sh will drop to a shell inside the chroot
+# and give you an opportunity emerge any addititonal packages or
+# do anything else you might need to do in the chroot.  
+#
+# You should at this point SET YOUR ROOT PASSWORD! =)
+
+# When you exit that shell, chroot-script.sh will exit, and 
+# you'll be returned to the final part of this build.sh.  
+# At that point, this script will umount filesystems and 
+# prepare the system to reboot.  You will be dropped back to 
+# your shell one more time, and you'll have a chance to make 
+# any final adjustments.  Reboot, remove your install media 
+# from the system, and with any luck you'll end up in your
+# shiny new ZFS root Gentoo system.
+
 set -e
 set -x
 

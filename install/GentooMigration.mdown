@@ -1,10 +1,15 @@
-Bootable Gentoo on ZFS Root
-===========================
+Migrating Bootable Gentoo on ZFS Root
+=====================================
 
 This tutorial describes the process for migrating an existing Gentoo system to run on a root ZFS filesystem using the native ZFS module available from https://github.com/zfsonlinux/zfs.
 
 This tutorial will give you a bootable ZFS root filesystem, albeit using GRUB on an MD-mirrored ext2 boot partition.  If you are installing a system from scratch, you may
 wish to follow [Installing a fresh Gentoo on ZFS System](https://github.com/pendor/gentoo-zfs-install/blob/master/install/GentooInstall.mdown "Instructions for installing a fresh ZFS Gentoo system") instead.
+
+Status of this Document
+=======================
+
+As of 13-Jul-2011, this document should be considered "beta" status.  While best efforts have been made to ensure accuracy of the content, it has not yet been tested on a wide variety of system configurations.  Any feedback, error corrections, typos, etc. would be greatly appreciated.  Bug reports can be sent to pendorbound /a.t/ g mail.
 
 Assumptions
 -----------
@@ -238,7 +243,7 @@ In order to create the initramfs, run:
 
     $ genkernel --loglevel=5 initramfs
 
-Loglevel=5 ensures that all output from Dracut is displayed.  You should check the output to make sure the zfs module ran and that zfs, zpool, /etc/hostid, /etc/zfs/zpool.cache are all included in the initramfs.  Assuming everything worked, you should have a new initramfs in your /boot partition.
+Loglevel=5 ensures that all output from Dracut is displayed.  You should check the output to make sure the zfs module ran and that zfs, zpool, `/etc/hostid`, `/etc/zfs/zpool.cache` are all included in the initramfs.  Assuming everything worked, you should have a new initramfs in your /boot partition.
 
 Copy Boot Partition to the MD
 -----------------------------
@@ -249,6 +254,12 @@ Once Genkernel completes, your initramfs & GRUB configuration will be in your cu
 
 Configuring GRUB
 ----------------
+
+You'll need to mount your "new" boot partition at /boot to make GRUB happy during install:
+
+    $ umount /boot
+    $ umount /mnt/gentoo/boot
+    $ mount /dev/md0 /boot
 
 Configuring GRUB is relatively straight forward since we're not yet attempting to use ZFS boot partitions.  You'll probably need to run manual `grub` rather than `grub-install` because boot is on an MD.
 
@@ -324,6 +335,7 @@ Reboot!
 Now it's time to unmount everything and reboot.
 
     $ umount /mnt/gentoo/boot
+    $ umount /boot
     $ zfs umount -a
     $ umount /mnt/gentoo
 
