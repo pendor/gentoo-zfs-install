@@ -51,7 +51,7 @@ emerge -v =sys-devel/spl-0.6.0_rc5 =sys-fs/zfs-0.6.0_rc5 =sys-kernel/genkernel-9
 genkernel --no-clean --no-mrproper --zfs --loglevel=5 all
 
 # Emerge some basic system stuff.  Substitute other loggers, crons, etc. as preferred.
-emerge -v metalog vixie-cron app-misc/screen dhcpcd mdadm grub joe
+emerge -v metalog vixie-cron app-misc/screen dhcpcd mdadm grub joe sys-block/parted
 
 # Add services to startup. zfs and udev must be in boot for anything to work.
 rc-update add zfs boot
@@ -67,7 +67,7 @@ rc-update add dhcpcd default
 
 # Setup grub on all four devices
 cat /proc/mounts | grep -v rootfs > /etc/mtab
-for dev in 0 1 2 3 ; do
+for dev in 0 1 ; do
   grub --batch <<EOG
 root (hd${dev},0)
 setup (hd${dev})

@@ -39,7 +39,7 @@ set -x
 
 URL=$1
 STAGE3=stage3-amd64-20110707.tar.bz2
-SNAPSHOT=portage-latest.tar.bz2
+SNAPSHOT=portage-20110704.tar.bz2
 
 # Kernel version we want, KV with the -gentoo- flag for initramf & kernel,
 # KVP with just the version for portage.
@@ -82,7 +82,7 @@ sleep 1
 ## End of cleanup.
 
 # Loop over the four drives we're using
-for f in a b c d  ; do
+for f in a b ; do
   # Make sure any previous mirror is good and dead...
   mdadm --zero-superblock /dev/sd${f}1 || /bin/true
   mdadm --zero-superblock /dev/sd${f}2 || /bin/true
@@ -107,14 +107,14 @@ for f in a b c d  ; do
 done
 
 # Create plain-old md mirrors for the boot partition
-mdadm --create --verbose /dev/md0 --level=1 --raid-devices=4 \
-  --metadata=0.90 /dev/sd[abcd]1
+mdadm --create --verbose /dev/md0 --level=1 --raid-devices=2 \
+  --metadata=0.90 /dev/sd[ab]1
   
 # We're going with a RAID-1 for safety on the swap.  You could
 # do RAID-0 for better performance at the expense of crashing the
 # system if you loose a drive.
-mdadm --create --verbose /dev/md1 --level=1 --raid-devices=4 \
-  --metadata=0.90 /dev/sd[abcd]2
+mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 \
+  --metadata=0.90 /dev/sd[ab]2
 
 # Make file systems on the md's
 mke2fs /dev/md0
@@ -128,7 +128,7 @@ mkswap /dev/md1
 # Create the pool.  We're doing RAID-5 on four SCSI disks.  Adjust
 # as needed.  We need to umount the new pool right after so we can
 # change the mount point & options
-zpool create -f rpool raidz sda3 sdb3 sdc3 sdd3
+zpool create -f rpool mirror sda3 sdb3
 zfs umount rpool
 
 # Set the mount point of the new pool to root and mark it NOT mountable.
@@ -180,7 +180,7 @@ mkdir /mnt/gentoo/etc/kernels
 ### mv /mnt/gentoo/etc/kernels/config /etc/kernels/kernel-config-x86_64-${KV}
 ## Instead, we'll use one we've trimmed down a bit.  You might leave this out
 ## and choose to run menuconfig instead for a more customized system.
-wget ${URL}/kernel-config
+wget ${URL}/install/kernel-config
 mv kernel-config /mnt/gentoo/etc/kernels/kernel-config-x86_64-${KV}
 
 # Mount up the boot partition & turn on the swap.
@@ -190,9 +190,9 @@ swapon /dev/md1
 
 # Download the stage & snapshot we'll be using.
 cd /mnt/gentoo
-wget ${URL}/${STAGE3}
-wget ${URL}/${SNAPSHOT}
-wget ${URL}/chroot-script.sh
+wget ${URL}/dist/${STAGE3}
+wget ${URL}/dist/${SNAPSHOT}
+wget ${URL}/install/chroot-script.sh
 
 # Un-tar the stage & portage snapshot.
 ## NOTE: If your install locks up at this point, you probably need to limit
