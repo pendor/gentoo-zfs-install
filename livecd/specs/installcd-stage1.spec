@@ -30,6 +30,7 @@ livecd/use:
 	xml
 
 livecd/packages:
+	sys-apps/gptfdisk
 	=app-misc/livecd-tools-2.0
 	=sys-kernel/genkernel-3.4.10.907-r1
 	=sys-kernel/gentoo-sources-2.6.38-r6

@@ -112,7 +112,7 @@ livecd/unmerge:
 	dev-libs/gmp
 	dev-libs/libxml2
 	dev-libs/mpfr
-	dev-libs/popt
+#	dev-libs/popt # Needed by gptsdisk
 	dev-python/pycrypto
 	dev-util/pkgconfig
 	net-misc/rsync
@@ -136,7 +136,7 @@ livecd/unmerge:
 	sys-devel/binutils-config
 	sys-devel/bison
 	sys-devel/flex
-  sys-devel/gcc
+#  sys-devel/gcc
 	sys-devel/gcc-config
 	sys-devel/gettext
 	sys-devel/gnuconfig
