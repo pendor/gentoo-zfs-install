@@ -10,11 +10,10 @@
 #
 # Layout of this script:
 #
-# This script loads the zfs driver, partitions disks, formats the
-# /boot and swap partitions, and creates the zpool.  It downloads
-# the initial stage files & portage snapshots and untars them
-# into what will be the chroot environment.  Finally it copies
-# chroot-script.sh into the chroot, chroot's, and executes 
+# This script loads the zfs driver, partitions disks, and creates 
+# the zpool.  It downloads the initial stage files & portage snapshots 
+# and untars them into what will be the chroot environment.  Finally 
+# it copies chroot-script.sh into the chroot, chroot's, and executes 
 # that script.
 #
 # chroot-script.sh does most of the gentoo install work of emerging
@@ -39,13 +38,16 @@ set -x
 
 URL=$1
 STAGE3=stage3-amd64-20110707.tar.bz2
-SNAPSHOT=portage-20110704.tar.bz2
+SNAPSHOT=portage-latest.tar.bz2
 
 # Kernel version we want, KV with the -gentoo- flag for initramf & kernel,
 # KVP with just the version for portage.
 KV=2.6.38-gentoo-r6
 KVP=2.6.38-r6
 # Note: these are in chroot-script.sh too.
+
+# Keep the lights from going out while we're watching...
+setterm -blank 0 -powersave off -powerdown 0 || /bin/true
 
 # Load the ZFS kernel module.  You may need to constrain the size of your
 # l2arc, especially if you're running on constrained hardware like a testing
@@ -65,14 +67,7 @@ umount -f /mnt/gentoo/proc || true
 zfs umount -a || /bin/true
 umount -f /mnt/gentoo || /bin/true
 
-swapoff /dev/md1 || /bin/true
-
 sleep 1
-
-# Shutdown any md mirrors
-for f in /dev/md* ; do
-  mdadm --stop $f || /bin/true
-done
 
 # Try to import the pool if it wasn't, then destroy it.
 zpool import -f -N rpool || /bin/true
@@ -83,42 +78,14 @@ sleep 1
 
 # Loop over the four drives we're using
 for f in a b ; do
-  # Make sure any previous mirror is good and dead...
-  mdadm --zero-superblock /dev/sd${f}1 || /bin/true
-  mdadm --zero-superblock /dev/sd${f}2 || /bin/true
-  
-  # Overwrite anything on the front bit of the disks that might confuse the 
-  # partitioner or RAID tools.
-  dd if=/dev/zero of=/dev/sd${f} bs=2M count=1
-  
   ## EDIT ME:
-  ## Make up some partitions.  We do 64M for boot, 
-  ## 2G for swap (probably overkill), and the rest for ZFS.
-  ## GNU parted doesn't seem to have a "rest of disk" option.
-  ## We're using GPT here, but there's no reason MBR wouldn't work.
-  parted -s -a opt /dev/sd${f} \
-    mklabel gpt \
-    mkpart boot 1M 64M \
-    align-check optimal 1 \
-    mkpart swap 64M 2052M \
-    align-check optimal 2 \
-    mkpart tank 2052M 34.4G \
-    align-check optimal 3
+  ## Make up some partitions.  We do 64M for grub, and the rest for ZFS.
+  sgdisk --zap-all /dev/sd${f}
+  sgdisk \
+    --new=1:2048:133120 --typecode=1:EF02 --change-name=1:"grub" \
+    --largest-new=2 --typecode=2:BF01 --change-name=2:"zfs" \
+    /dev/sd${f}
 done
-
-# Create plain-old md mirrors for the boot partition
-mdadm --create --verbose /dev/md0 --level=1 --raid-devices=2 \
-  --metadata=0.90 /dev/sd[ab]1
-  
-# We're going with a RAID-1 for safety on the swap.  You could
-# do RAID-0 for better performance at the expense of crashing the
-# system if you loose a drive.
-mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 \
-  --metadata=0.90 /dev/sd[ab]2
-
-# Make file systems on the md's
-mke2fs /dev/md0
-mkswap /dev/md1
 
 ## 
 ## This is where the real ZFS stuff begins.  
@@ -128,7 +95,7 @@ mkswap /dev/md1
 # Create the pool.  We're doing RAID-5 on four SCSI disks.  Adjust
 # as needed.  We need to umount the new pool right after so we can
 # change the mount point & options
-zpool create -f rpool mirror sda3 sdb3
+zpool create -f rpool mirror sda2 sdb2
 zfs umount rpool
 
 # Set the mount point of the new pool to root and mark it NOT mountable.
@@ -145,7 +112,7 @@ zfs set mountpoint=legacy rpool/ROOT
 ## won't be need to pass a root=... param to grub.  You can't boot
 ## off RAID-Z (only mirror), so zpool won't let you set this for a 
 ## RAID-Z pool.
-# zpool set bootfs=rpool/ROOT rpool
+zpool set bootfs=rpool/ROOT rpool
 
 # Now mount the rootfs in the usual place for the chroot.
 mount -t zfs rpool/ROOT /mnt/gentoo
@@ -161,17 +128,19 @@ zfs create rpool/usr/src
 zfs create rpool/var
 zfs create rpool/var/log
 
-# Build an mdadm.conf from the live config & store it in the chroot.
-mkdir -p /mnt/gentoo/etc
-mdadm --detail --scan >> /mnt/gentoo/etc/mdadm.conf
+# Make a swap volume:
+zfs create -V 2G rpool/swap
+zfs set checksum=off rpool/swap
+mkswap /dev/rpool/swap
+swapon /dev/rpool/swap
 
 # Copy over zpool cache.  If you skip this, you'll have to play some games in
 # Dracut's emergency holographic shell to get it fixed.
-mkdir /mnt/gentoo/etc/zfs
+mkdir -p /mnt/gentoo/etc/zfs
 cp /etc/zfs/zpool.cache /mnt/gentoo/etc/zfs/zpool.cache
 
 # Copy in a starting kernel config.
-mkdir /mnt/gentoo/etc/kernels
+mkdir -p /mnt/gentoo/etc/kernels
 
 ## You could use the one from the livecd, but you'll need to install some
 ## extra firmware for the ATM drivers.
@@ -182,11 +151,6 @@ mkdir /mnt/gentoo/etc/kernels
 ## and choose to run menuconfig instead for a more customized system.
 wget ${URL}/install/kernel-config
 mv kernel-config /mnt/gentoo/etc/kernels/kernel-config-x86_64-${KV}
-
-# Mount up the boot partition & turn on the swap.
-mkdir -p /mnt/gentoo/boot
-mount /dev/md0 /mnt/gentoo/boot
-swapon /dev/md1
 
 # Download the stage & snapshot we'll be using.
 cd /mnt/gentoo
@@ -239,29 +203,17 @@ echo "We're back from chroot.  Getting system ready to reboot."
 
 # Setup /etc/fstab in the chroot with our boot, swap, and a legacy entry for root.
 cat > /mnt/gentoo/etc/fstab <<FSTAB
-/dev/md0                /boot           ext2            noauto,noatime  1 2
-/dev/md1                none            swap            sw              0 0
+/dev/rpool/swap         none            swap            sw              0 0
 rpool/ROOT              /               zfs             noatime         0 0
 /dev/cdrom              /mnt/cdrom      auto            noauto,ro       0 0
 FSTAB
 
-# Build grub.conf in the chroot
-cat > /mnt/gentoo/boot/grub/grub.conf <<GCONF
-default 0
-timeout 3 
-splashimage=(hd0,0)/boot/grub/splash.xpm.gz 
- 
-title Gentoo Linux           
-root (hd0,0) 
-kernel /boot/kernel-genkernel-x86_64-${KV} root=zfs:rpool/ROOT 
-initrd /boot/initramfs-genkernel-x86_64-${KV}
-GCONF
-
 cd
+swapoff /dev/rpool/swap
 zfs umount -a
 zfs set mountpoint=/ rpool
 umount -l /mnt/gentoo/dev{/shm,/pts,}
-umount -l /mnt/gentoo{/boot,/proc,}
+umount -l /mnt/gentoo{/proc,}
 zpool export rpool
 
 echo "It should be safe to remove the installation CD and reboot now."

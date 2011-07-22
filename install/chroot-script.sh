@@ -39,7 +39,7 @@ echo "=sys-kernel/dracut-010-r3 ~amd64" > /etc/portage/package.keywords/dracut
 # the use flags for now and just do sources/genkernel, then build a kernel
 # without ZFS.  Then we'll have to build ZFS & rebuilt the initramfs.
 USE="-zfs" emerge -v =sys-kernel/gentoo-sources-${KVP} =sys-kernel/genkernel-9999
-genkernel --menuconfig all
+genkernel --no-menuconfig all
 
 # Unmask latest versions of spl & zfs, then build them.
 echo "sys-fs/zfs **" > /etc/portage/package.keywords/zfs
@@ -51,12 +51,13 @@ emerge -v =sys-devel/spl-0.6.0_rc5 =sys-fs/zfs-0.6.0_rc5 =sys-kernel/genkernel-9
 genkernel --no-clean --no-mrproper --zfs --loglevel=5 all
 
 # Emerge some basic system stuff.  Substitute other loggers, crons, etc. as preferred.
-emerge -v metalog vixie-cron app-misc/screen dhcpcd mdadm grub joe sys-block/parted
+echo "=sys-boot/grub-1.99_rc99 **" >> /etc/portage/package.keywords/grub
+emerge -v metalog vixie-cron app-misc/screen dhcpcd joe sys-block/parted \
+  sys-apps/gptfdisk =sys-boot/grub-1.99_rc99
 
 # Add services to startup. zfs and udev must be in boot for anything to work.
 rc-update add zfs boot
 rc-update add udev boot
-rc-update add mdadm default
 
 # Add services as desired.
 rc-update add metalog default
@@ -64,15 +65,13 @@ rc-update add vixie-cron default
 
 ## You might not want this if you're doing static IP...
 rc-update add dhcpcd default
+rc-update add sshd default
 
 # Setup grub on all four devices
 cat /proc/mounts | grep -v rootfs > /etc/mtab
-for dev in 0 1 ; do
-  grub --batch <<EOG
-root (hd${dev},0)
-setup (hd${dev})
-quit
-EOG
+grub-mkconfig -o /boot/grub/grub.cfg
+for dev in a b ; do
+  grub-install /dev/sd${dev}
 done
 
 echo "The ZFS portion of things is done, and this should give a bootable system."
