@@ -80,8 +80,7 @@ You can make use of this overlay by installing and configuring layman:
         /etc/layman/layman-orig.cfg > /etc/layman/layman.cfg
 
     # Refresh the Layman overlay list and add zfs to the active list
-    layman -S
-    layman -L
+    layman -f
     layman -a zfs
     
 Once the layman overlay is installed, the portage overlay is available at `/var/lib/layman/zfs` which is the default path where the included spec files will find it.
@@ -94,7 +93,7 @@ If you'd prefer not to use layman, you can download the overlay either by clonin
 Customizing the Spec Files
 --------------------------
 
-The stage files assume that the livecd package is installed at `/root/catalyst` so that `/root/catalyst/spec/stage1.spec` is a valid location.  You should search through the spec files for `/root/catalyst` and update any paths as needed.  Several critical scripts and portage configurations are referenced from the installcd-stage*.spec files, and the livecd build process will fail if the paths are not updated.
+The stage files assume that the livecd package is installed at `/root/livecd` so that `/root/livecd/spec/stage1.spec` is a valid location.  You should search through the spec files for `/root/livecd` and update any paths as needed.  Several critical scripts and portage configurations are referenced from the installcd-stage*.spec files, and the livecd build process will fail if the paths are not updated.
 
 Skim through each of the stage files to see if any additional customization is required.  Other than changing version strings or snapshot/stage paths, the stage1-3 files are used pretty much as-is.  The installcd-stage*.spec files are where you can customize packages which will be included on the livecd.  Please see Gentoo's Catalyst documentation for more advanced customizations that are available.  
 
@@ -103,7 +102,7 @@ Please note that customization may lead to failure of the livecd build process, 
 Kernel Configuration
 --------------------
 
-It's recommended that you use the included installcd-2.6.38.config file and stick with 2.6.38 as the kernel for the livecd.  If you wish to customize this file, you must ensure that:
+It's recommended that you use the included installcd-2.6.38.config file and stick with 2.6.38 as the kernel for the livecd.  If you wish to customize this file, you must ensure that the following settings are included:
 
     CONFIG_KALLSYMS=y
     CONFIG_PREEMPT_NONE=y
@@ -115,18 +114,14 @@ Building the Stages
 
 Once everything is configured, you can start the stage build process.  This will take a while...  You need to build a stage 1, 2, and 3 Gentoo system (in a chroot) before finally building a stage1 and stage2 livecd.  While it's technically possible to build installcd-stage1 directly from a pre-existing stage3, it's not recommended.  If it breaks, you get to keep the pieces...
 
-    cd /root/catalyst # Where you downloaded the files.
-    catalyst -v -f spec/stage1.spec
+    cd /root/livecd # Where you downloaded the files.
+    catalyst -v -f specs/stage1.spec && \
+    catalyst -v -f specs/stage2.spec && \
+    catalyst -v -f specs/stage3.spec && \
+    catalyst -v -f specs/installcd-stage1.spec && \
+    catalyst -v -f specs/installcd-stage2-minimal.spec
     
-    catalyst -v -f spec/stage2.spec
-    
-    catalyst -v -f spec/stage3.spec
-    
-    catalyst -v -f spec/installcd-stage1.spec
-    
-    catalyst -v -f spec/installcd-stage2-minimal.spec
-    
-You should check the output from each stage to make sure there are no errors.  The end result of the installcd-stage2 build will be an ISO file at `/root/catalyst/install-amd64-minimal-10.0.zfs.iso`.  You can use these CD image to install Gentoo.
+You should check the output from each stage to make sure there are no errors.  The end result of the installcd-stage2 build will be an ISO file at `/root/livecd/install-amd64-minimal-10.0.zfs.iso`.  You can use these CD image to install Gentoo.
 
 Licensing Note
 ==============
@@ -135,7 +130,7 @@ There's much FUD flying around about licensing of ZFS and its compatibility with
 
 While I am not a lawyer, it's my good faith belief based on my understanding of the term "link" and of comments made by Linus Torvalds mirrored at  http://linuxmafia.com/faq/Kernel/proprietary-kernel-modules.html that simply creating kernel modules for Linux is not sufficient for those modules to be considered derivative works of the Linux kernel.  
 
-The specifically mentioned case of the Andrew File System driver is particularly germane in that just as with ZFS, AFS represents a pre-existing code base that clearly has a life independent of the Linux kernel.  As such, the modules themselves are not derivative works of the kernel and may be distributed in compiled form purely under the terms of the CDDL.  It is with this understanding that an ISO of the above described process is made available:
+The specifically mentioned case of the Andrew File System driver is particularly germane in that just as with AFS, ZFS represents a pre-existing code base that clearly has a life independent of the Linux kernel.  As such, the modules themselves are not derivative works of the kernel and may be distributed in compiled form purely under the terms of the CDDL.  It is with this understanding that an ISO of the above described process is made available:
 
 * http://dl.dropbox.com/u/34890805/install-amd64-minimal-10.0.zfs.iso
 * https://docs.google.com/leaf?id=0BySUUtAmD3OxOWU2MTliZjEtNmVmZS00NmI3LWE5ZDEtNTFkNzExYTM3MjEx&hl=en_US

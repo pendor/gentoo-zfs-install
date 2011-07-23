@@ -7,7 +7,7 @@ snapshot: 20110704
 source_subpath: default/stage3-amd64-10.0.zfs
 portage_overlay: /var/lib/layman/zfs
 
-portage_confdir: /root/catalyst/portage
+portage_confdir: /root/livecd/portage
 
 livecd/use:
 	-*

@@ -7,18 +7,18 @@ snapshot: 20110704
 source_subpath: default/livecd-stage1-amd64-10.0.zfs
 portage_overlay: /var/lib/layman/zfs
 
-portage_confdir: /root/catalyst/portage
+portage_confdir: /root/livecd/portage
 
 livecd/bootargs: dokeymap
 livecd/cdtar: /usr/lib/catalyst/livecd/cdtar/isolinux-elilo-memtest86+-cdtar.tar.bz2
 livecd/fstype: squashfs
 livecd/gk_mainargs: --mdadm --makeopts=-j3
-livecd/iso: /root/catalyst/install-amd64-minimal-10.0.zfs.iso
+livecd/iso: /root/livecd/install-amd64-minimal-10.0.zfs.iso
 livecd/type: gentoo-release-minimal
 livecd/volid: Gentoo ZFS amd64 10
-livecd/fsscript: /root/catalyst/fsscript.sh
+livecd/fsscript: /root/livecd/fsscript.sh
 
-#livecd/root_overlay: /root/catalyst/root_overlay
+#livecd/root_overlay: /root/livecd/root_overlay
 livecd/rcadd:
 	hald|default
 	dbus|default
@@ -29,7 +29,7 @@ livecd/rcadd:
 boot/kernel: gentoo
 
 boot/kernel/gentoo/sources: =sys-kernel/gentoo-sources-2.6.38-r6
-boot/kernel/gentoo/config: /root/catalyst/specs/installcd-2.6.38.config 
+boot/kernel/gentoo/config: /root/livecd/specs/installcd-2.6.38.config 
 # /release/svn-releng/trunk/releases/weekly/kconfig/amd64/installcd-2.6.38.config
 boot/kernel/gentoo/use:
 	-*
