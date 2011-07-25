@@ -191,6 +191,13 @@ GENTOO_MIRRORS="http://mirror.datapipe.net/gentoo http://gentoo.mirrors.easynews
 SYNC="rsync://rsync5.us.gentoo.org/gentoo-portage"
 EOF
 
+# Setup /etc/fstab in the chroot with our boot, swap, and a legacy entry for root.
+cat > /mnt/gentoo/etc/fstab <<FSTAB
+/dev/rpool/swap         none            swap            sw              0 0
+rpool/ROOT              /               zfs             noatime         0 0
+/dev/cdrom              /mnt/cdrom      auto            noauto,ro       0 0
+FSTAB
+
 echo "Entering chroot now..."
 chmod +x /mnt/gentoo/chroot-script.sh
 chroot /mnt/gentoo /chroot-script.sh
@@ -200,13 +207,6 @@ chroot /mnt/gentoo /chroot-script.sh
 
 ## Should be back outside chroot now.
 echo "We're back from chroot.  Getting system ready to reboot."
-
-# Setup /etc/fstab in the chroot with our boot, swap, and a legacy entry for root.
-cat > /mnt/gentoo/etc/fstab <<FSTAB
-/dev/rpool/swap         none            swap            sw              0 0
-rpool/ROOT              /               zfs             noatime         0 0
-/dev/cdrom              /mnt/cdrom      auto            noauto,ro       0 0
-FSTAB
 
 cd
 swapoff /dev/rpool/swap
