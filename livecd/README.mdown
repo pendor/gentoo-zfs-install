@@ -132,7 +132,7 @@ While I am not a lawyer, it's my good faith belief based on my understanding of 
 
 The specifically mentioned case of the Andrew File System driver is particularly germane in that just as with AFS, ZFS represents a pre-existing code base that clearly has a life independent of the Linux kernel.  As such, the modules themselves are not derivative works of the kernel and may be distributed in compiled form purely under the terms of the CDDL.  It is with this understanding that an ISO of the above described process is made available:
 
-* http://dl.dropbox.com/u/34890805/install-amd64-minimal-10.0.zfs.iso
-* https://docs.google.com/leaf?id=0BySUUtAmD3OxOWU2MTliZjEtNmVmZS00NmI3LWE5ZDEtNTFkNzExYTM3MjEx&hl=en_US
-* MD5(install-amd64-minimal-10.0.zfs.iso)= b1ac63d9d86d37482dd7bfe0062509f2
-* SHA1(install-amd64-minimal-10.0.zfs.iso)= 373041a565534ee7865c06b715881f7c3b19b016
+* http://dl.dropbox.com/u/34890805/install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso
+* https://docs.google.com/leaf?id=0BySUUtAmD3OxNjhmM2M2NmMtNjA0Yy00ZjQ1LWE5MjMtNWQzYTE1MzRmYmJj&hl=en_US
+* MD5(install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso)= 0aa55230889b20fbe0b3021e39fa7339
+* SHA1(install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso)= 005edd8dda6e9afb66719a83c3ac38fe57476052
