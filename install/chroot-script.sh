@@ -74,6 +74,14 @@ for dev in a b ; do
   grub-install /dev/sd${dev}
 done
 
+# Graphics settings for boot in Grub -- used for console settings by kernel.
+mkdir -p /etc/default
+cat >>/etc/default/grub <<EOF
+GRUB_TIMEOUT=1
+GRUB_DISABLE_RECOVERY=true
+GRUB_GFXPAYLOAD_LINUX=1024x768x16
+EOF
+
 echo "The ZFS portion of things is done, and this should give a bootable system."
 echo "You can emerge any additional packages and configure the system as you like"
 echo "now.  When you're done, exit this shell, and we'll escape the chroot and"
