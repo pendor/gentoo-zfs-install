@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ufwb version="1.0.3">
+    <grammar name="MBR" start="mbr_t" author="Zachary Bedell" fileextension="" uti="public.data">
+        <description>Grammar for my file format</description>
+        <structure name="mbr_t" id="103" consists-of="disk_signature" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <string name="code_area" id="105" type="fixed-length" length="440"/>
+            <number name="disk_signature" id="106" type="integer" length="4" endian="little" display="hex"/>
+            <binary name="padding" mustmatch="yes" id="107" length="2">
+                <fixedvalue name="padding" value="0000"/>
+            </binary>
+            <structref name="partition_entry" id="109" repeatmin="4" repeatmax="4" structure="partition_entry_t"/>
+            <binary name="signature" mustmatch="yes" id="110" fillcolor="FFE5E8" length="2">
+                <fixedvalue name="magic" value="55AA"/>
+            </binary>
+        </structure>
+        <structure name="partition_entry_t" id="108" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <binary name="status" mustmatch="yes" id="112" length="1">
+                <fixedvalue name="bootable" value="80"/>
+                <fixedvalue name="nonbootable" value="00"/>
+            </binary>
+            <structref name="start_chs" id="114" structure="chs_t"/>
+            <binary name="partition_type" id="115" length="1">
+                <fixedvalue name="empty" value="00"/>
+                <fixedvalue name="efi_protect_mbr" value="EE"/>
+                <fixedvalue name="linux_swap" value="82"/>
+                <fixedvalue name="linux" value="83"/>
+                <fixedvalue name="linux_lvm" value="89"/>
+                <fixedvalue name="fat32_lba" value="0C"/>
+            </binary>
+            <structref name="end_chs" id="116" structure="chs_t"/>
+            <number name="start_lba" id="117" type="integer" length="4" endian="little"/>
+            <number name="num_sectors" id="118" type="integer" length="4" endian="little"/>
+        </structure>
+        <structure name="chs_t" id="113" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <number name="chs" id="120" type="integer" length="3"/>
+        </structure>
+    </grammar>
+</ufwb>

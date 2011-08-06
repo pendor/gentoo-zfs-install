@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ufwb version="1.0.3">
+    <grammar name="GPT Header" start="gpt_header_t" author="Zachary Bedell" fileextension="" uti="public.data">
+        <description>Grammar for my file format</description>
+        <structure name="gpt_header_t" id="125" encoding="ISO_8859-1:1987" endian="little" signed="no">
+            <string name="signature" mustmatch="yes" id="126" fillcolor="83FA91" type="fixed-length" length="8">
+                <fixedvalue name="magic" value="EFI PART"/>
+            </string>
+            <structref name="revision" id="134" fillcolor="FFEEE7" structure="revision_t"/>
+            <number name="header_size" id="135" type="integer" length="4"/>
+            <number name="header_crc" id="136" fillcolor="FF6060" type="integer" length="4" display="hex"/>
+            <number name="reserved" id="137" fillcolor="92BEFA" type="integer" length="4">
+                <fixedvalue name="reserved" value="0"/>
+            </number>
+            <number name="current_lba" id="138" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="backup_lba" id="139" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="first_usable_lba" id="140" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="last_usable_lba" id="141" fillcolor="DCFBA7" type="integer" length="8"/>
+            <binary name="disk_uuid" id="142" fillcolor="ED8E61" length="16"/>
+            <number name="part_entries_start_lba" id="143" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="num_entries" id="144" fillcolor="FFA7EA" type="integer" length="4"/>
+            <number name="entry_size" id="145" fillcolor="FFA7EA" type="integer" length="4"/>
+            <number name="partitions_crc" id="146" fillcolor="FF6060" type="integer" length="4"/>
+            <string name="padding" id="147" fillcolor="92BEFA" type="fixed-length" length="420"/>
+        </structure>
+        <structure name="revision_t" id="130" encoding="ISO_8859-1:1987" endian="big" signed="no" fillcolor="FFE1DB">
+            <number name="major" id="132" fillcolor="FFDBD9" type="integer" length="2" endian="big"/>
+            <number name="minor" id="133" fillcolor="FFDBD9" type="integer" length="2" endian="little"/>
+        </structure>
+    </grammar>
+</ufwb>

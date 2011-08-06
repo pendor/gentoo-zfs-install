@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ufwb version="1.0.3">
+    <grammar name="ZFS Label, ashift=11" start="label11" author="Zachary Bedell" fileextension="bin" uti="com.apple.macbinary-archive">
+        <description>ZFS vdev label, ashift=11</description>
+        <structure name="label11" id="4" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <binary name="vtoc_label" id="5" fillcolor="B8B8B8" length="8192"/>
+            <binary name="bootblock_header" id="6" length="8192"/>
+            <structref name="nvlist" id="8" structure="nvlist_t"/>
+            <structref name="uberblock11" id="10" repeatmin="128" repeatmax="128"/>
+        </structure>
+        <structure name="uberblock11" id="9" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <binary name="ub_magic" id="12" fillcolor="FFA7EA" length="8">
+                <fixedvalue name="big_endian" value="0000000000BAB10C"/>
+                <fixedvalue name="little_endian" value="0CB1BA0000000000"/>
+            </binary>
+            <number name="ub_version" id="13" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="ub_txg" id="14" fillcolor="F6EF9D" type="integer" length="8"/>
+            <number name="ub_guid_sum" id="15" fillcolor="FF6060" type="integer" length="8"/>
+            <number name="ub_timestamp" id="16" fillcolor="F6EF9D" type="integer" length="8"/>
+            <structref name="ub_rootbp" id="18" structure="blkptr_t"/>
+            <binary name="random_0x1C" id="19" length="1"/>
+            <string name="padding" id="20" fillcolor="B8B8B8" type="fixed-length" length="3887"/>
+            <structref name="ubp_zec" id="22" structure="zio_eck_t"/>
+        </structure>
+        <structure name="blkptr_t" id="17" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <structref name="dva_t" id="25" repeatmin="3" repeatmax="3"/>
+            <number name="blk_prop" id="26" type="integer" length="8"/>
+            <binary name="blk_pad" id="27" length="16"/>
+            <number name="blk_phys_birth" id="28" type="integer" length="8"/>
+            <number name="blk_birth" id="29" type="integer" length="8"/>
+            <number name="blk_fill" id="30" type="integer" length="8"/>
+            <structref name="blk_cksum" id="32" structure="zio_cksum_t"/>
+        </structure>
+        <structure name="dva_t" id="24" length="16" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <number name="dva_word" id="34" repeatmin="2" repeatmax="2" type="integer" length="8"/>
+        </structure>
+        <structure name="zio_cksum_t" id="31" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <number name="zc_word" id="36" repeatmin="4" repeatmax="4" type="integer" length="8"/>
+        </structure>
+        <structure name="nvlist_t" id="7" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <binary name="nvlist_data" id="38" length="114688"/>
+        </structure>
+        <structure name="zio_eck_t" id="21" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <binary name="zec_magic" id="40" length="8">
+                <fixedvalue name="big_endian" value="0210DA7AB10C7A11"/>
+                <fixedvalue name="little_endian" value="117A0CB17ADA1002"/>
+            </binary>
+            <structref name="zec_cksum" id="41" structure="zio_cksum_t"/>
+        </structure>
+    </grammar>
+</ufwb>
