@@ -128,12 +128,6 @@ zfs create rpool/usr/src
 zfs create rpool/var
 zfs create rpool/var/log
 
-# Make a swap volume:
-zfs create -V 2G rpool/swap
-zfs set checksum=off rpool/swap
-mkswap /dev/rpool/swap
-swapon /dev/rpool/swap
-
 # Copy over zpool cache.  If you skip this, you'll have to play some games in
 # Dracut's emergency holographic shell to get it fixed.
 mkdir -p /mnt/gentoo/etc/zfs
@@ -191,9 +185,8 @@ GENTOO_MIRRORS="http://mirror.datapipe.net/gentoo http://gentoo.mirrors.easynews
 SYNC="rsync://rsync5.us.gentoo.org/gentoo-portage"
 EOF
 
-# Setup /etc/fstab in the chroot with our boot, swap, and a legacy entry for root.
+# Setup /etc/fstab in the chroot with our boot, and a legacy entry for root.
 cat > /mnt/gentoo/etc/fstab <<FSTAB
-/dev/rpool/swap         none            swap            sw              0 0
 rpool/ROOT              /               zfs             noatime         0 0
 /dev/cdrom              /mnt/cdrom      auto            noauto,ro       0 0
 FSTAB
@@ -209,7 +202,6 @@ chroot /mnt/gentoo /chroot-script.sh
 echo "We're back from chroot.  Getting system ready to reboot."
 
 cd
-swapoff /dev/rpool/swap
 zfs umount -a
 zfs set mountpoint=/ rpool
 umount -l /mnt/gentoo/dev{/shm,/pts,}
