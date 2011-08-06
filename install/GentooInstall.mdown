@@ -138,6 +138,12 @@ ZFS will mount each dataset as it's created, so you should now have your filesys
 Create Swap (Optional)
 ----------------------
 
+**Important Note**
+
+Running swap in ZVOL will currently deadlock when the system grows into swap.  If you NEED swap, you must create separate partitions for it and setup mdadm in necessary.
+
+**Unsafe swap-on-ZVOL Setup:**
+
 Swap can be run from with the zpool as a zvol:
 
     # Set size as desired.  Checksum'ing isn't necessary for swap and turning it off improves
