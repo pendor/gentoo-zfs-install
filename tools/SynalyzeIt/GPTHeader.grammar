@@ -2,55 +2,54 @@
 <ufwb version="1.0.4.4">
     <grammar name="GPT Header" start="gpt" author="Zachary Bedell" fileextension="" uti="public.data" complete="yes">
         <description>Grammar for my file format</description>
-        <structure name="gpt" id="3" encoding="ISO_8859-1:1987" endian="big" signed="no">
-            <structref name="gpt_header_start" id="5" repeatmin="0" structure="gpt_header_t"/>
-            <structref name="gpt_entry_t" id="7" repeatmin="128" repeatmax="128"/>
-            <binary name="padding" mustmatch="yes" id="40" repeatmin="0" repeatmax="896" length="1">
-                <fixedvalue name="PAD" value="00"/>
-            </binary>
-            <structref name="gpt_header_end" id="8" repeatmin="0" structure="gpt_header_t"/>
+        <structure name="gpt" id="4" encoding="ISO_8859-1:1987" endian="big" signed="no">
+            <structref name="gpt_header_start" id="6" repeatmin="0" structure="gpt_header_t"/>
+            <structure name="gpt_entries" id="40">
+                <structure name="gpt_entry_t" id="7" repeatmax="128" encoding="ISO_8859-1:1987" endian="little" signed="no">
+                    <binary name="partition_type" id="32" fillcolor="FFDBD9" length="16">
+                        <fixedvalue name="Solaris /usr or ZFS" value="C38C896AD21DB21199A6080020736631"/>
+                        <fixedvalue name="Reserved" value="3B5A946AD21DB21199A6080020736631"/>
+                        <fixedvalue name="BIOS Boot (Grub)" value="4861682149646F6E744E656564454649"/>
+                        <fixedvalue name="UNUSED" value="00000000000000000000000000000000"/>
+                        <fixedvalue name="Basic Data Partition" value="A2A0D0EBE5B9334487C068B6B72699C7"/>
+                    </binary>
+                    <binary name="partition_uuid" id="33" fillcolor="ED8E61" length="16"/>
+                    <number name="first_lba" id="34" fillcolor="DCFBA7" type="integer" length="8"/>
+                    <number name="last_lba" id="35" fillcolor="DCFBA7" type="integer" length="8"/>
+                    <number name="attribute_flags" id="36" type="integer" length="8">
+                        <mask name="read-only" value="0x40000000">
+                            <fixedvalue name="read-only" value="0x40000000"/>
+                        </mask>
+                    </number>
+                    <string name="name" id="37" fillcolor="B9D3FB" type="fixed-length" length="72" encoding="UTF-16"/>
+                </structure>
+            </structure>
+            <structref name="gpt_header_end" id="10" repeatmin="0" structure="gpt_header_t"/>
         </structure>
-        <structure name="gpt_header_t" id="4" encoding="ISO_8859-1:1987" endian="little" signed="no">
-            <string name="signature" mustmatch="yes" id="10" fillcolor="83FA91" type="fixed-length" length="8">
+        <structure name="gpt_header_t" id="5" encoding="ISO_8859-1:1987" endian="little" signed="no">
+            <string name="signature" mustmatch="yes" id="12" fillcolor="83FA91" type="fixed-length" length="8">
                 <fixedvalue name="magic" value="EFI PART"/>
             </string>
-            <structref name="revision" id="12" structure="revision_t"/>
-            <number name="header_size" id="13" type="integer" length="4"/>
-            <number name="header_crc" id="14" fillcolor="FF6060" type="integer" length="4" display="hex"/>
-            <number name="reserved" id="15" fillcolor="92BEFA" type="integer" length="4">
+            <structref name="revision" id="14" structure="revision_t"/>
+            <number name="header_size" id="15" type="integer" length="4"/>
+            <number name="header_crc" id="16" fillcolor="FF6060" type="integer" length="4" display="hex"/>
+            <number name="reserved" id="17" fillcolor="92BEFA" type="integer" length="4">
                 <fixedvalue name="reserved" value="0"/>
             </number>
-            <number name="current_lba" id="16" fillcolor="DCFBA7" type="integer" length="8"/>
-            <number name="backup_lba" id="17" fillcolor="DCFBA7" type="integer" length="8"/>
-            <number name="first_usable_lba" id="18" fillcolor="DCFBA7" type="integer" length="8"/>
-            <number name="last_usable_lba" id="19" fillcolor="DCFBA7" type="integer" length="8"/>
-            <binary name="disk_uuid" id="20" fillcolor="ED8E61" length="16"/>
-            <number name="part_entries_start_lba" id="21" fillcolor="DCFBA7" type="integer" length="8"/>
-            <number name="num_entries" id="22" fillcolor="FFA7EA" type="integer" length="4"/>
-            <number name="entry_size" id="23" fillcolor="FFA7EA" type="integer" length="4"/>
-            <number name="partitions_crc" id="24" fillcolor="FF6060" type="integer" length="4" display="hex"/>
-            <string name="padding" id="25" fillcolor="92BEFA" type="fixed-length" length="420"/>
+            <number name="current_lba" id="18" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="backup_lba" id="19" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="first_usable_lba" id="20" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="last_usable_lba" id="21" fillcolor="DCFBA7" type="integer" length="8"/>
+            <binary name="disk_uuid" id="22" fillcolor="ED8E61" length="16"/>
+            <number name="part_entries_start_lba" id="23" fillcolor="DCFBA7" type="integer" length="8"/>
+            <number name="num_entries" id="24" fillcolor="FFA7EA" type="integer" length="4"/>
+            <number name="entry_size" id="25" fillcolor="FFA7EA" type="integer" length="4"/>
+            <number name="partitions_crc" id="26" fillcolor="FF6060" type="integer" length="4" display="hex"/>
+            <string name="padding" id="27" fillcolor="92BEFA" type="fixed-length" length="420"/>
         </structure>
-        <structure name="revision_t" id="11" encoding="ISO_8859-1:1987" endian="big" signed="no" fillcolor="FFE1DB">
-            <number name="major" id="27" fillcolor="FFDBD9" type="integer" length="2" endian="big"/>
-            <number name="minor" id="28" fillcolor="FFDBD9" type="integer" length="2" endian="little"/>
-        </structure>
-        <structure name="gpt_entry_t" id="6" encoding="ISO_8859-1:1987" endian="little" signed="no">
-            <binary name="partition_type" id="30" fillcolor="FFDBD9" length="16">
-                <fixedvalue name="Solaris /usr or ZFS" value="C38C896AD21DB21199A6080020736631"/>
-                <fixedvalue name="Reserved" value="3B5A946AD21DB21199A6080020736631"/>
-                <fixedvalue name="BIOS Boot (Grub)" value="4861682149646F6E744E656564454649"/>
-                <fixedvalue name="UNUSED" value="00000000000000000000000000000000"/>
-            </binary>
-            <binary name="partition_uuid" id="31" fillcolor="ED8E61" length="16"/>
-            <number name="first_lba" id="32" fillcolor="DCFBA7" type="integer" length="8"/>
-            <number name="last_lba" id="33" fillcolor="DCFBA7" type="integer" length="8"/>
-            <number name="attribute_flags" id="34" type="integer" length="1">
-                <mask name="read-only" value="0x40000000">
-                    <fixedvalue name="read-only" value="0x40000000"/>
-                </mask>
-            </number>
-            <string name="name" id="35" fillcolor="B9D3FB" type="fixed-length" length="72" encoding="UTF-16"/>
+        <structure name="revision_t" id="13" encoding="ISO_8859-1:1987" endian="big" signed="no" fillcolor="FFE1DB">
+            <number name="major" id="29" fillcolor="FFDBD9" type="integer" length="2" endian="big"/>
+            <number name="minor" id="30" fillcolor="FFDBD9" type="integer" length="2" endian="little"/>
         </structure>
     </grammar>
 </ufwb>
