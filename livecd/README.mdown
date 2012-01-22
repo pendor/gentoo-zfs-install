@@ -7,7 +7,7 @@ This tutorial assumes you have access to an existing Gentoo Linux system with th
 
 You'll also need to install Gentoo's Catalyst tool and dosfstools.  Note that all package installs in this doc will use fully versioned portage atoms.  It's likely that later versions will still work, but the actual versions used are shown for clarity.
 
-    emerge -v =dev-util/catalyst-2.0.6.916 =sys-fs/dosfstools-3.0.9
+    emerge -v =dev-util/catalyst-2.0.7.1 =sys-fs/dosfstools-3.0.9
 
 About Catalyst
 ==============
@@ -27,17 +27,15 @@ Place the livecd folder somewhere on your host Gentoo system.  You'll need to cu
 
 **Stage 3 Tarball**
 
-* http://dl.dropbox.com/u/34890805/stage3-amd64-20110520.tar.bz2
-* https://docs.google.com/leaf?id=0BySUUtAmD3OxZmIxY2ZlODUtYzU5ZS00NTJlLWExNDUtOGNkYTQ4YzIzNGU0&hl=en_US
-* MD5(stage3-amd64-20110520.tar.bz2)= f96b8bfbbaacdc0ad1ed3fc7f751cba5  
-* SHA1(stage3-amd64-20110520.tar.bz2)= 55b4ede3c8a4252e0e314fe5fec6fdd7b9b40774
+* http://dl.dropbox.com/... TBD
+* MD5 (stage3-amd64-20120119.tar.bz2) = a3a6620cd7f471d68b6cee491e090b17
+* SHA1 (stage3-amd64-20120119.tar.bz2) = 027248f59f00470bf8a9dcb9bb3dcef57296e23c
 
 **Portage Snapshot**
 
-* http://dl.dropbox.com/u/34890805/portage-20110704.tar.bz2
-* https://docs.google.com/leaf?id=0BySUUtAmD3OxMjY0MGNlZDEtZmNhMC00YzVkLTkyZTAtM2MxOWQ0ZjVkMDdm&hl=en_US
-* MD5(portage-20110704.tar.bz2)= 151e2df3496dfe0af79617ee1635118f
-* SHA1(portage-20110704.tar.bz2)= 724369025e92036e4610d2bc40b599d0c39e728b
+* http://dl.dropbox.com/... TBD
+* MD5 (portage-latest.tar.bz2) = bdebc72ad3ed1c3d2418b650c37c0be1
+* SHA1 (portage-latest.tar.bz2) = b3a6df6ffa86be5acb3f06ed6d660598a830ee6d
 
 Initial Setup
 =============
@@ -133,6 +131,5 @@ While I am not a lawyer, it's my good faith belief based on my understanding of 
 The specifically mentioned case of the Andrew File System driver is particularly germane in that just as with AFS, ZFS represents a pre-existing code base that clearly has a life independent of the Linux kernel.  As such, the modules themselves are not derivative works of the kernel and may be distributed in compiled form purely under the terms of the CDDL.  It is with this understanding that an ISO of the above described process is made available:
 
 * http://dl.dropbox.com/u/34890805/install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso
-* https://docs.google.com/leaf?id=0BySUUtAmD3OxNjhmM2M2NmMtNjA0Yy00ZjQ1LWE5MjMtNWQzYTE1MzRmYmJj&hl=en_US
 * MD5(install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso)= 0aa55230889b20fbe0b3021e39fa7339
 * SHA1(install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso)= 005edd8dda6e9afb66719a83c3ac38fe57476052

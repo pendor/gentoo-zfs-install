@@ -3,7 +3,7 @@ version_stamp: 10.0.zfs
 target: livecd-stage1
 rel_type: default
 profile: default/linux/amd64/10.0/no-multilib
-snapshot: 20110704
+snapshot: latest
 source_subpath: default/stage3-amd64-10.0.zfs
 portage_overlay: /var/lib/layman/zfs
 
@@ -31,9 +31,9 @@ livecd/use:
 
 livecd/packages:
 	sys-apps/gptfdisk
-	=app-misc/livecd-tools-2.0
-	=sys-kernel/genkernel-3.4.10.907-r1
-	=sys-kernel/gentoo-sources-2.6.38-r6
+	=app-misc/livecd-tools-2.0.2
+	=sys-kernel/genkernel-3.4.16
+	=sys-kernel/gentoo-sources-3.1.6
 	app-accessibility/brltty
 	app-admin/hddtemp
 	app-admin/passook

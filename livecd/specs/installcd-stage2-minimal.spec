@@ -3,13 +3,13 @@ version_stamp: 10.0.zfs
 target: livecd-stage2
 rel_type: default
 profile: default/linux/amd64/10.0/no-multilib
-snapshot: 20110704
+snapshot: latest
 source_subpath: default/livecd-stage1-amd64-10.0.zfs
 portage_overlay: /var/lib/layman/zfs
 
 portage_confdir: /root/livecd/portage
 
-livecd/bootargs: dokeymap
+#livecd/bootargs: dokeymap
 livecd/cdtar: /usr/lib/catalyst/livecd/cdtar/isolinux-elilo-memtest86+-cdtar.tar.bz2
 livecd/fstype: squashfs
 livecd/gk_mainargs: --mdadm --makeopts=-j3
@@ -28,8 +28,8 @@ livecd/rcadd:
 
 boot/kernel: gentoo
 
-boot/kernel/gentoo/sources: =sys-kernel/gentoo-sources-2.6.38-r6
-boot/kernel/gentoo/config: /root/livecd/specs/installcd-2.6.38.config 
+boot/kernel/gentoo/sources: =sys-kernel/gentoo-sources-3.1.6
+boot/kernel/gentoo/config: /root/livecd/specs/installcd-3.1.6.config 
 # /release/svn-releng/trunk/releases/weekly/kconfig/amd64/installcd-2.6.38.config
 boot/kernel/gentoo/use:
 	-*
@@ -85,12 +85,14 @@ boot/kernel/gentoo/use:
 	usb
 
 boot/kernel/gentoo/packages:
-	=sys-devel/spl-0.6.0_rc5
-	=sys-fs/zfs-0.6.0_rc5
+	=sys-devel/spl-9999
+	=sys-fs/zfs-9999
 	app-accessibility/espeakup
 	media-libs/alsa-oss
 	media-sound/alsa-utils
 	net-dialup/globespan-adsl
+	sys-fs/ntfs3g
+	
 # These were not stable at time of snapshot/release.
 #	net-wireless/rtl8180
 #	net-wireless/rtl8187
@@ -168,9 +170,9 @@ livecd/empty:
 	/tmp
 	/usr/diet/include
 	/usr/diet/man
-	/usr/i386-gentoo-linux-uclibc
-	/usr/i386-pc-linux-gnu
-	/usr/i386-pc-linux-uclibc
+	/usr/i?86-gentoo-linux-uclibc
+	/usr/i?86-pc-linux-gnu
+	/usr/i?86-pc-linux-uclibc
 	/usr/include
 	/usr/lib/X11/config
 	/usr/lib/X11/doc
