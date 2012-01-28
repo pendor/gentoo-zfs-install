@@ -67,13 +67,6 @@ rc-update add vixie-cron default
 rc-update add dhcpcd default
 rc-update add sshd default
 
-# Setup grub on all four devices
-cat /proc/mounts | grep -v rootfs > /etc/mtab
-grub-mkconfig -o /boot/grub/grub.cfg
-for dev in a b ; do
-  grub-install /dev/sd${dev}
-done
-
 # Graphics settings for boot in Grub -- used for console settings by kernel.
 mkdir -p /etc/default
 cat >>/etc/default/grub <<EOF
@@ -81,6 +74,13 @@ GRUB_TIMEOUT=1
 GRUB_DISABLE_RECOVERY=true
 GRUB_GFXPAYLOAD_LINUX=1024x768x16
 EOF
+
+# Setup grub on all devices
+cat /proc/mounts | grep -v rootfs > /etc/mtab
+grub-mkconfig -o /boot/grub/grub.cfg
+for dev in a b ; do
+  grub-install /dev/sd${dev}
+done
 
 echo "The ZFS portion of things is done, and this should give a bootable system."
 echo "You can emerge any additional packages and configure the system as you like"

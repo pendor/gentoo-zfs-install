@@ -4,4 +4,4 @@ version_stamp: 10.0.zfs
 rel_type: default
 profile: default/linux/amd64/10.0
 snapshot: latest
-source_subpath: stage3-amd64-20110520
+source_subpath: stage3-amd64-20120119

@@ -1,0 +1,67 @@
+Booting into your system using the installcd as a rescue disk takes a little extra work with ZFS...
+
+Remote Connection
+-----------------
+
+SSH might be handy:
+
+		$ /etc/init.d/net.eth0 start
+		$ passwd
+		$ /etc/init.d/sshd start
+		$ ifconfig
+
+Getting in
+----------
+
+Once the installcd is booted:
+
+		# Get the pool back.  -f since the hostid is probably wrong, -N means don't auto-mount anything (since we need to override the mountpoint)
+		$ zpool import -fN rpool
+		$ Fix the mount point so relative mount points work.
+		$ zfs set mountpoint=/mnt/gentoo rpool
+		# Mount just the root in its temporary location
+		$ mount -t zfs rpool/ROOT /mnt/gentoo
+		# Mount everything else.
+		$ zfs mount -a
+		
+Or all in one:
+
+		$ zpool import -fN rpool && zfs set mountpoint=/mnt/gentoo rpool && mount -t zfs rpool/ROOT /mnt/gentoo && zfs mount -a
+
+Chroot
+------
+
+This is standard Gentoo stuff, but I always forget the sequence...
+
+		$ mount -t proc none /mnt/gentoo/proc
+		$ mount --rbind /dev /mnt/gentoo/dev
+		$ chroot /mnt/gentoo /bin/bash
+		$ env-update
+		$ source /etc/profile
+		$ export PS1="(chroot) $PS1"
+
+Or if you're lazy & like to copy/paste:
+
+		$ mount -t proc none /mnt/gentoo/proc && mount --rbind /dev /mnt/gentoo/dev && chroot /mnt/gentoo /bin/bash
+		$ env-update && source /etc/profile && export PS1="(chroot) $PS1"
+
+Graceful Exit
+-------------
+
+Once everything is fixed, you need to clean things up a bit.
+
+		$ exit
+		$ cd
+		$ zfs umount -a
+		# Very important: Set your pool's mountpoint back to root.
+		$ zfs set mountpoint=/ rpool
+		$ umount -l /mnt/gentoo/dev{/shm,/pts,}
+		$ umount -l /mnt/gentoo{/proc,}
+		# Also very important: Export the pool so your initramfs' different hostid can import it without force.
+		$ zpool export rpool
+
+All in one:
+
+		$ exit
+		$ cd && zfs umount -a && zfs set mountpoint=/ rpool && umount -l /mnt/gentoo/dev{/shm,/pts,} && umount -l /mnt/gentoo{/proc,} && zpool export rpool
+		

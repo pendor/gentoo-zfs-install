@@ -27,13 +27,15 @@ Place the livecd folder somewhere on your host Gentoo system.  You'll need to cu
 
 **Stage 3 Tarball**
 
-* http://dl.dropbox.com/... TBD
+* http://dl.dropbox.com/u/34890805/stage3-amd64-20120119.tar.bz2
+* GPG: http://dl.dropbox.com/u/34890805/stage3-amd64-20120119.tar.bz2.asc
 * MD5 (stage3-amd64-20120119.tar.bz2) = a3a6620cd7f471d68b6cee491e090b17
 * SHA1 (stage3-amd64-20120119.tar.bz2) = 027248f59f00470bf8a9dcb9bb3dcef57296e23c
 
 **Portage Snapshot**
 
-* http://dl.dropbox.com/... TBD
+* http://dl.dropbox.com/u/34890805/portage-latest.tar.bz2
+* GPG: http://dl.dropbox.com/u/34890805/portage-latest.tar.bz2.asc
 * MD5 (portage-latest.tar.bz2) = bdebc72ad3ed1c3d2418b650c37c0be1
 * SHA1 (portage-latest.tar.bz2) = b3a6df6ffa86be5acb3f06ed6d660598a830ee6d
 
@@ -130,6 +132,7 @@ While I am not a lawyer, it's my good faith belief based on my understanding of 
 
 The specifically mentioned case of the Andrew File System driver is particularly germane in that just as with AFS, ZFS represents a pre-existing code base that clearly has a life independent of the Linux kernel.  As such, the modules themselves are not derivative works of the kernel and may be distributed in compiled form purely under the terms of the CDDL.  It is with this understanding that an ISO of the above described process is made available:
 
-* http://dl.dropbox.com/u/34890805/install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso
-* MD5(install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso)= 0aa55230889b20fbe0b3021e39fa7339
-* SHA1(install-amd64-minimal-10.0.zfs-0.6.0_rc5.iso)= 005edd8dda6e9afb66719a83c3ac38fe57476052
+* http://dl.dropbox.com/u/34890805/install-amd64-minimal-10.0.zfs.iso
+* GPG: http://dl.dropbox.com/u/34890805/install-amd64-minimal-10.0.zfs.iso.asc
+* MD5(install-amd64-minimal-10.0.zfs.iso)= a0f42595211e4088db826571b3828d7d
+* SHA1(install-amd64-minimal-10.0.zfs.iso)= 9ffc2b9ab14da6b5ef4ea609cadc59ef5de4345b
