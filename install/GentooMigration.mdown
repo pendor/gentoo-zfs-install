@@ -62,17 +62,9 @@ Adding the Layman Overlay
 
 A Portage overlay is available which provides ebuilds for patched & customized versions of the source code.  The need for this should diminish as patches are integrated in upstream repositories, but if you're living on the bleeding edge, you'll have to work a bit harder...
 
-You should already have layman installed, so you can edit the existing configuration at `/etc/layman/layman.cfg`.  Add to the `overlays` section as follows:
+You should already have layman installed, so you can edit add the zfs overlay and sync it:
 
-    overlays  : http://www.gentoo.org/proj/en/overlays/repositories.xml
-		        https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml
-
-The first line should already be there.  Add the second and save the file.
-
-Now enable the zfs overlay and sync it:
-
-    $ layman -f
-    $ layman -a zfs
+    $ layman -o https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml -f -a zfs
 
 This overlay provides ebuilds for spl, zfs, genkernel, and grub.
 

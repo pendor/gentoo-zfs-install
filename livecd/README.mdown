@@ -73,15 +73,8 @@ You can make use of this overlay by installing and configuring layman:
     # Install layman.  At least git support must be included via USE flag.
     USE="git" emerge -v =app-portage/layman-1.4.1
     
-    # Add the overlay file to layman's configuration file:
-    cp /etc/layman/layman.cfg /etc/layman/layman-orig.cfg
-    sed '/^\s*overlays\s*:/ a\
-        https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml' \
-        /etc/layman/layman-orig.cfg > /etc/layman/layman.cfg
-
-    # Refresh the Layman overlay list and add zfs to the active list
-    layman -f
-    layman -a zfs
+    # Add the overlay file to layman's configuration file, add zfs, and sync:
+    layman -o https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml -f -a zfs
     
 Once the layman overlay is installed, the portage overlay is available at `/var/lib/layman/zfs` which is the default path where the included spec files will find it.
 

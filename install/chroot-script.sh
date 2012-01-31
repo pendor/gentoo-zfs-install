@@ -13,15 +13,8 @@ KVP=2.6.38-r6
 # We need layman to get our portage overlays for ZFS & Genkernel.
 emerge -v layman
 
-# Insert the laymay overlay URL for the ZFS & genkernel stuff.
-cp /etc/layman/layman.cfg /etc/layman/layman-orig.cfg
-sed '/^\s*overlays\s*:/ a\
-    https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml' \
-    /etc/layman/layman-orig.cfg > /etc/layman/layman.cfg
-
-# Refresh the Layman overlay list and add zfs to the active list
-layman -f
-layman -a zfs
+# Insert the layman overlay URL for the ZFS & genkernel stuff & update.
+layman -o https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml -f -a zfs
 
 # Once we have an overlay active, it's safe to add layman into make.conf
 echo "source /var/lib/layman/make.conf" >> /etc/make.conf

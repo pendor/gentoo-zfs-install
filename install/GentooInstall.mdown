@@ -255,18 +255,10 @@ Setup Layman
 
 Hopefully you installed Layman in a previous emerge.  Now you'll need to add the ZFS overlay and add layman to your make.conf.
 		
-		# The following bit of sed should insert the overlay's URL in your
-		# existing layman.cfg.
-		$ cp /etc/layman/layman.cfg /etc/layman/layman-orig.cfg
-		$ sed '/^\s*overlays\s*:/ a\
-		https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml' \
-		/etc/layman/layman-orig.cfg > /etc/layman/layman.cfg
-
-		# Now fetch the updated layman overlay list and enable the zfs overlay
-		$ layman -f
-		$ layman -a zfs
-
-		# Finally add layman to make.conf
+		# Insert the layman overlay URL for the ZFS & genkernel stuff & update.
+		$ layman -o https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml -f -a zfs
+		
+		# Add layman to make.conf
 		$ echo "source /var/lib/layman/make.conf" >> /etc/make.conf
 
 Note that in the future, you can obtain updates to the overlay by running `layman -S`.  This is the equivalent of running `emerge --sync`.
