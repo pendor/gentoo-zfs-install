@@ -269,15 +269,15 @@ Installing Packages
 Once you have a kernel built, SPL, ZFS, and genkernel can be installed.  All three packages will require some Portage keyword modifications to build:
 
 		$ FILE=/etc/portage/package.keywords ; [ -d $FILE ] && FILE=$FILE/zfs ; cat >> $FILE <<EOF
-		=sys-devel/spl-9999 **
+		=sys-kernel/spl-9999 **
 		=sys-fs/zfs-9999 **
 		=sys-kernel/genkernel-9999 **
-		=sys-boot/grub-9999 **
+		=sys-boot/grub-1.99_rc99 **
 		=sys-kernel/dracut-014-r1 ~amd64
 		EOF
 
 		$ FILE=/etc/portage/package.use ; [ -d $FILE ] && FILE=$FILE/zfs ; cat >> $FILE <<EOF
-		=sys-boot/grub-9999 zfs -truetype
+		=sys-boot/grub-1.99_rc99 zfs -truetype
 		=sys-kernel/genkernel-9999 zfs
 		EOF
 		# ZFS is of course wanted, TrueType currently breaks on grub-mkfont.
@@ -288,7 +288,7 @@ Enable zfs in Dracut.  You might also want to add gensplash here, but that will 
 
 With the necessary keywords in place, you can emerge:
 
-		$ emerge -v =sys-devel/spl-9999 =sys-fs/zfs-9999 =sys-kernel/dracut-014-r1 =sys-kernel/genkernel-9999 =sys-boot/grub-9999
+		$ emerge -v =sys-kernel/spl-9999 =sys-fs/zfs-9999 =sys-kernel/dracut-014-r1 =sys-kernel/genkernel-9999 =sys-boot/grub-1.99_rc99
 
 **Check for /etc/hostid**
 

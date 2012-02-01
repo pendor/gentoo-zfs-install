@@ -85,7 +85,7 @@ boot/kernel/gentoo/use:
 	usb
 
 boot/kernel/gentoo/packages:
-	=sys-devel/spl-9999
+	=sys-kernel/spl-9999
 	=sys-fs/zfs-9999
 	app-accessibility/espeakup
 	media-libs/alsa-oss

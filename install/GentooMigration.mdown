@@ -50,7 +50,7 @@ With the preliminaries out of the way, we'll start installing the ZFS-specific p
 You'll likely need to add several package keywords to get all of the packages building.  The following should be a good starting point:
 
     $ FILE=/etc/portage/package.keywords ; [ -d $FILE ] && FILE=$FILE/zfs ; cat >> $FILE <<EOF
-    sys-devel/spl **
+    sys-kernel/spl **
     sys-fs/zfs **
     =sys-boot/grub-1.99_rc99 **
     =sys-kernel/genkernel-9999 **
@@ -92,7 +92,7 @@ After SPL, we can install the ZFS module & usermode tools.
 For both SPL & ZFS, we'll be installing the latest rc build from the maintainer.  Presently all necessary patches have been integrated into upstream, so we'll be building the source directly with minimal modification in the ebuilds (only to configure & make parameters).
 
     # Note that you'll probably need to add ** keywords for both packages to /etc/portage/package.keywords.
-    $ emerge -v =sys-devel/spl-0.6.0_rc5 =sys-fs/zfs-0.6.0_rc5
+    $ emerge -v =sys-kernel/spl-9999 =sys-fs/zfs-9999
     
     # You'll need the zfs initscript loaded at boot:
     $ rc-update add zfs boot

@@ -36,8 +36,8 @@ genkernel --no-menuconfig all
 
 # Unmask latest versions of spl & zfs, then build them.
 echo "sys-fs/zfs **" > /etc/portage/package.keywords/zfs
-echo "sys-devel/spl **" >> /etc/portage/package.keywords/zfs
-emerge -v =sys-devel/spl-0.6.0_rc5 =sys-fs/zfs-0.6.0_rc5 =sys-kernel/genkernel-9999
+echo "sys-kernel/spl **" >> /etc/portage/package.keywords/zfs
+emerge -v =sys-kernel/spl-9999 =sys-fs/zfs-9999 =sys-kernel/genkernel-9999
 
 ## FIXME: Genkernel config file add zfs
 # edit /etc/genkernel.conf++zfs, build again
