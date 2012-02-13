@@ -54,7 +54,7 @@ You'll likely need to add several package keywords to get all of the packages bu
     sys-fs/zfs **
     =sys-boot/grub-1.99_rc99 **
     =sys-kernel/genkernel-9999 **
-    =sys-kernel/dracut-013-r2 ~amd64
+    =sys-kernel/dracut-015 ~amd64
     EOF
 
 Adding the Layman Overlay
@@ -114,7 +114,7 @@ You may wish to add additional modules (like gensplash), but configuring these i
 You can install Dracut and Genkernel with:
 
     # Genkernel needs ** keyword, dracut should be okay with ~amd64.
-    $ emerge -v =sys-kernel/dracut-013-r2 =sys-kernel/genkernel-9999
+    $ emerge -v =sys-kernel/dracut-015 =sys-kernel/genkernel-9999
 
 Configuring ZFS
 ===============

@@ -22,7 +22,7 @@ echo "source /var/lib/layman/make.conf" >> /etc/make.conf
 # Add portage keywords to allow installing newer versions of genkernel and dracut
 mkdir -p /etc/portage/package.keywords
 echo "sys-kernel/genkernel **" > /etc/portage/package.keywords/genkernel
-echo "=sys-kernel/dracut-010-r3 ~amd64" > /etc/portage/package.keywords/dracut
+echo "=sys-kernel/dracut-015 ~amd64" > /etc/portage/package.keywords/dracut
 
 ## FIXME: Edit the Genkernel config to set makeopts
 
