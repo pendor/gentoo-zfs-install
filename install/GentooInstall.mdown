@@ -194,6 +194,7 @@ Listed here mostly because I can never remember this sequence of commands...
 
 		$ mount -t proc none /mnt/gentoo/proc
 		$ mount --rbind /dev /mnt/gentoo/dev
+		$ mount --rbind /sys /mnt/gentoo/sys
 		$ chroot /mnt/gentoo /bin/bash
 		$ env-update
 		$ source /etc/profile
