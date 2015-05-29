@@ -1,3 +1,12 @@
+Outdated!
+=========
+
+Please note that these instructions are out of date as of 29-May-2015 and are unlikely to work.  Arantius has been kind enough to publish an updated (and quite simplified) procedure to build a LiveCD for Gentoo with ZFS support here: http://linux.arantius.com/building-a-gentoo-minimal-livecd-with-zfs-support
+
+Note that I did need to update kernel versions in the releng/releases/weekly/specs/amd64/installcd-stage2-minimal.spec file as the version listed at https://github.com/arantius/gentoo-releng.git is no longer in the Portage tree.  You may also wish to bump the ZFS & SPL versions to the latest/greatest and/or the -9999 versions in order to support importing pools with the newest feature flags enabled.
+
+----
+
 This tutorial explains how to build a Gentoo install livecd with support for ZFS.  Using such a CD makes the process of building a Gentoo system with ZFS as its root filesystem relatively straight forward.
 
 Requirements
