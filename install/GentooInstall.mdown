@@ -194,6 +194,7 @@ Listed here mostly because I can never remember this sequence of commands...
 
 		$ mount -t proc none /mnt/gentoo/proc
 		$ mount --rbind /dev /mnt/gentoo/dev
+		$ mount --rbind /sys /mnt/gentoo/sys
 		$ chroot /mnt/gentoo /bin/bash
 		$ env-update
 		$ source /etc/profile
@@ -201,7 +202,7 @@ Listed here mostly because I can never remember this sequence of commands...
 
 Or if you're lazy & like to copy/paste:
 
-		$ mount -t proc none /mnt/gentoo/proc && mount --rbind /dev /mnt/gentoo/dev && chroot /mnt/gentoo /bin/bash
+		$ mount -t proc none /mnt/gentoo/proc && mount --rbind /dev /mnt/gentoo/dev && mount --rbind /sys /mnt/gentoo/sys && chroot /mnt/gentoo /bin/bash
 		$ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 
 Once you're in the chroot environment, either before or after you do the "normal" Gentoo install stuff, the following extra steps are necessary for ZFS:
